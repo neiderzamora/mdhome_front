@@ -1,44 +1,29 @@
-"use client";
+"use client"
 
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import { toast } from 'nextjs-toast-notify';
-import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
-import React, { useState, useEffect } from 'react';
 
 const RequestService = () => {
-    const [address, setAddress] = useState({ neighborhood: '', line: '', description: '' });
-    const [symptoms, setSymptoms] = useState([]);
+    const [address, setAddress] = useState('');
     const [symptomInput, setSymptomInput] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('card');
-    const [message, setMessage] = useState('');
-
-    useEffect(() => {
-        if (message) {
-            toast.success(message, {
-                duration: 5000,
-                progress: true,
-                position: "top-center",
-                transition: "popUp",
-                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"/></svg>',
-                sonido: false,
-            });
-
-            const timer = setTimeout(() => setMessage(''), 3000);
-            return () => clearTimeout(timer);
-        }
-    }, [message]);
+    const [symptoms, setSymptoms] = useState([]);
+    const [paymentMethod, setPaymentMethod] = useState('');
+    const [savedAddresses, setSavedAddresses] = useState([]);
+    const router = useRouter();
 
     const handleAddSymptom = () => {
         if (symptomInput.trim()) {
-            setSymptoms(prevSymptoms => [...prevSymptoms, symptomInput]);
+            setSymptoms([...symptoms, symptomInput]);
             setSymptomInput('');
         }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (address.neighborhood && address.line && symptoms.length > 0) {
-            console.log({ address, symptoms, paymentMethod });
-            setMessage('Petición enviada al médico más cercano');
+        if (address && symptoms.length > 0 && paymentMethod) {
+            // Aquí deberías manejar la lógica de envío del formulario
+            toast.success('Solicitud enviada con éxito.');
         } else {
             toast.error('Por favor, completa todos los campos requeridos.', {
                 duration: 5000,
@@ -48,11 +33,20 @@ const RequestService = () => {
         }
     };
 
+    const handleAddAddress = () => {
+        router.push('/addresses');
+    };
+
     return (
         <div className="max-w-5xl mx-auto px-4 pt-44">
             <h1 className="text-4xl font-bold mb-4 text-primary-100">Solicitar Servicio</h1>
             <form onSubmit={handleSubmit} className="space-y-6">
-                <AddressSection address={address} setAddress={setAddress} />
+                <AddressSection 
+                    address={address} 
+                    setAddress={setAddress} 
+                    savedAddresses={savedAddresses} 
+                    handleAddAddress={handleAddAddress} 
+                />
                 <SymptomsSection 
                     symptomInput={symptomInput} 
                     setSymptomInput={setSymptomInput} 
@@ -68,39 +62,36 @@ const RequestService = () => {
     );
 };
 
-const AddressSection = ({ address, setAddress }) => {
+const AddressSection = ({ address, setAddress, savedAddresses, handleAddAddress }) => {
     const handleAddressChange = (e) => {
-        const { name, value } = e.target;
-        setAddress(prevAddress => ({ ...prevAddress, [name]: value }));
+        const { value } = e.target;
+        setAddress(value);
     };
 
     return (
         <div>
-            <label className="block text-lg font-medium text-primary-100">Agregar Dirección</label>
-            <input 
-                type="text" 
-                name="neighborhood" 
-                value={address.neighborhood} 
-                onChange={handleAddressChange} 
-                placeholder="Barrio" 
-                className="border p-2 mt-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-primary-100"
-            />
-            <input 
-                type="text" 
-                name="line" 
-                value={address.line} 
-                onChange={handleAddressChange} 
-                placeholder="Linea de dirección" 
-                className="border p-2 mt-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-primary-100"
-            />
-            <input 
-                type="text" 
-                name="description" 
-                value={address.description} 
-                onChange={handleAddressChange} 
-                placeholder="Descripción" 
-                className="border p-2 mt-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-primary-100"
-            />
+            <label className="block text-lg font-medium text-primary-100 mb-2">Agregar Dirección</label>
+            <div className="flex items-center space-x-4">
+                <select 
+                    value={address} 
+                    onChange={handleAddressChange} 
+                    className="block border p-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-primary-100"
+                >
+                    <option value="">Selecciona una dirección</option>
+                    {savedAddresses.map((addr, index) => (
+                        <option key={index} value={addr}>
+                            {addr}
+                        </option>
+                    ))}
+                </select>
+                <button 
+                    type="button" 
+                    onClick={handleAddAddress} 
+                    className="bg-primary-100 text-white py-2 px-4 rounded shadow-lg hover:bg-primary-200 transition duration-300"
+                >
+                    Agregar
+                </button>
+            </div>
         </div>
     );
 };
@@ -108,8 +99,8 @@ const AddressSection = ({ address, setAddress }) => {
 const SymptomsSection = ({ symptomInput, setSymptomInput, handleAddSymptom, symptoms }) => {
     return (
         <div>
-            <label className="block text-lg font-medium text-primary-100">Agregar Síntomas</label>
-            <div className="flex mt-2">
+            <label className="block text-lg font-medium text-primary-100 mb-2">Agregar Síntomas</label>
+            <div className="flex items-center space-x-4">
                 <input 
                     type="text" 
                     value={symptomInput} 
@@ -120,14 +111,14 @@ const SymptomsSection = ({ symptomInput, setSymptomInput, handleAddSymptom, symp
                 <button 
                     type="button" 
                     onClick={handleAddSymptom} 
-                    className="ml-2 bg-primary-100 text-white py-2 px-4 rounded shadow-lg hover:bg-primary-200 transition duration-300"
+                    className="bg-primary-100 text-white py-2 px-4 rounded shadow-lg hover:bg-primary-200 transition duration-300"
                 >
                     Agregar
                 </button>
             </div>
-            <ul className="mt-2">
+            <ul className="mt-4">
                 {symptoms.map((symptom, index) => (
-                    <li key={index} className="border-b py-1">{symptom}</li>
+                    <li key={index} className="text-primary-100">{symptom}</li>
                 ))}
             </ul>
         </div>
@@ -135,16 +126,22 @@ const SymptomsSection = ({ symptomInput, setSymptomInput, handleAddSymptom, symp
 };
 
 const PaymentMethodSection = ({ paymentMethod, setPaymentMethod }) => {
+    const handlePaymentMethodChange = (e) => {
+        setPaymentMethod(e.target.value);
+    };
+
     return (
         <div>
             <label className="block text-lg font-medium text-primary-100">Método de Pago</label>
             <select 
                 value={paymentMethod} 
-                onChange={(e) => setPaymentMethod(e.target.value)} 
-                className="border p-2 mt-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-primary-100"
+                onChange={handlePaymentMethodChange} 
+                className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
             >
-                <option value="card">Tarjeta</option>
-                <option value="cash">Efectivo</option>
+                <option value="">Selecciona un método de pago</option>
+                <option value="credit-card">Tarjeta de Crédito</option>
+                <option value="paypal">PayPal</option>
+                <option value="bank-transfer">Transferencia Bancaria</option>
             </select>
         </div>
     );

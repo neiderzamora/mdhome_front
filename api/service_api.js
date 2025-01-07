@@ -41,16 +41,6 @@ export const loginUser = async (formData) => {
   }
 };
 
-// Función para registrar un nuevo usuario
-export const registerUser = async (userData) => {
-  try {
-    const response = await api.post('/register', userData);
-    return response.data;
-  } catch (error) {
-    throw error.response.data;
-  }
-};
-
 // Funciones CRUD para pacientes
 export const getPatients = async () => {
   try {
@@ -85,5 +75,107 @@ export const updatePatient = async (id, patientData) => {
     return response.data;
   } catch (error) {
     throw error.response.data;
+  }
+};
+
+// Funciones CRUD para direcciones
+const ADDRESS_API_URL = `${API_BASE_URL}/service-addresses/`;
+
+export const fetchAddresses = async () => {
+  try {
+    const response = await api.get(ADDRESS_API_URL);
+    return response.data.results;
+  } catch (error) {
+    console.error('Error en fetchAddresses:', error);
+    throw error;
+  }
+};
+
+export const createAddress = async (address) => {
+  try {
+    const response = await api.post(ADDRESS_API_URL, address);
+    return response.data;
+  } catch (error) {
+    console.error('Error en createAddress:', error);
+    throw error;
+  }
+};
+
+export const updateAddress = async (id, address) => {
+  try {
+    const response = await api.put(`${ADDRESS_API_URL}${id}/`, address);
+    return response.data;
+  } catch (error) {
+    console.error('Error en updateAddress:', error);
+    throw error;
+  }
+};
+
+export const deleteAddress = async (id) => {
+  try {
+    await api.delete(`${ADDRESS_API_URL}${id}/`);
+  } catch (error) {
+    console.error('Error en deleteAddress:', error);
+    throw error;
+  }
+};
+
+// -------------------- Funciones CRUD para Vehículos -------------------- //
+
+// Ruta base para la API de vehículos
+const VEHICLE_API_URL = `${API_BASE_URL}/vehicle/`;
+
+/**
+ * Obtener la lista de vehículos
+ */
+export const fetchVehicles = async () => {
+  try {
+    const response = await api.get(VEHICLE_API_URL);
+    return response.data.results;
+  } catch (error) {
+    console.error('Error en fetchVehicles:', error);
+    throw error;
+  }
+};
+
+/**
+ * Crear un nuevo vehículo
+ * @param {Object} vehicle - Datos del vehículo a crear
+ */
+export const createVehicle = async (vehicle) => {
+  try {
+    const response = await api.post(VEHICLE_API_URL, vehicle);
+    return response.data;
+  } catch (error) {
+    console.error('Error en createVehicle:', error);
+    throw error;
+  }
+};
+
+/**
+ * Actualizar un vehículo existente
+ * @param {number} id - ID del vehículo a actualizar
+ * @param {Object} vehicle - Datos actualizados del vehículo
+ */
+export const updateVehicle = async (id, vehicle) => {
+  try {
+    const response = await api.put(`${VEHICLE_API_URL}${id}/`, vehicle);
+    return response.data;
+  } catch (error) {
+    console.error('Error en updateVehicle:', error);
+    throw error;
+  }
+};
+
+/**
+ * Eliminar un vehículo
+ * @param {number} id - ID del vehículo a eliminar
+ */
+export const deleteVehicle = async (id) => {
+  try {
+    await api.delete(`${VEHICLE_API_URL}${id}/`);
+  } catch (error) {
+    console.error('Error en deleteVehicle:', error);
+    throw error;
   }
 };

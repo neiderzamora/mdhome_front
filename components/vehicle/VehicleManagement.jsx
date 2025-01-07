@@ -2,60 +2,141 @@
 
 import React, { useState, useEffect } from "react";
 import VehicleList from "./VehicleList";
+import CreateVehicle from "./CreateVehicle";
+import EditVehicle from "./EditVehicle";
+import DeleteVehicle from "./DeleteVehicle";
+import { fetchVehicles } from "@/api/service_api";
 import { FaPlus } from "react-icons/fa";
-import { useRouter } from "next/navigation"; // Importa useRouter
+import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 
 const VehicleManagement = () => {
   const [vehicles, setVehicles] = useState([]);
-  const router = useRouter(); // Inicializa useRouter
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const vehicles = [
-      { id: 1, plateNumber: "ABC123", color: "Rojo", brand: "Toyota" },
-      { id: 2, plateNumber: "DEF456", color: "Azul", brand: "Honda" },
-      { id: 3, plateNumber: "GHI789", color: "Verde", brand: "Ford" },
-      { id: 4, plateNumber: "GHI789", color: "Verde", brand: "Ford" },
-    ];
-    setVehicles(vehicles);
+    const getVehicles = async () => {
+      try {
+        const data = await fetchVehicles();
+        setVehicles(data);
+      } catch (error) {
+        console.error("Error al obtener los vehículos:", error);
+      }
+    };
+    getVehicles();
   }, []);
 
-  const handleCreateVehicle = () => {
-    router.push("./vehicle/add"); // Redirige a la página de creación de vehículos
+  const handleCreateVehicle = (newVehicle) => {
+    setVehicles([...vehicles, newVehicle]);
+    setIsCreating(false);
   };
 
-  const handleEditVehicle = (vehicleId) => {
-    router.push(`./vehicle/${vehicleId}`); // Redirige a la página de edición del vehículo
+  const handleEditVehicle = (updateVehicle) => {
+    setVehicles(
+      vehicles.map((v) => (v.id === updateVehicle.id ? updateVehicle : v))
+    );
+    setIsEditing(false);
+    setSelectedVehicle(null);
   };
 
   const handleDeleteVehicle = (id) => {
-    const updatedVehicles = vehicles.filter((v) => v.id !== id);
-    setVehicles(updatedVehicles);
+    setVehicles(vehicles.filter((v) => v.id !== id));
+    setSelectedVehicle(null);
+    setIsDeleting(false);
+  };
+
+  const handleSelectVehicle = (vehicle, action) => {
+    setSelectedVehicle(vehicle);
+    if (action === "edit") {
+      setIsEditing(true);
+      setIsDeleting(false);
+      setIsCreating(false);
+    } else if (action === "delete") {
+      setIsDeleting(true);
+      setIsEditing(false);
+      setIsCreating(false);
+    }
+  };
+
+  const handleAddVehicleClick = () => {
+    setIsCreating(true);
+    setSelectedVehicle(null);
+    setIsEditing(false);
+    setIsDeleting(false);
+  };
+
+  const handleCancel = () => {
+    setIsCreating(false);
+    setIsEditing(false);
+    setIsDeleting(false);
+    setSelectedVehicle(null);
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 mt-44">
-      <div className="flex lg:justify-between mb-4 lg:mb-8">
-        <h1 className="text-4xl font-bold text-primary-100 flex items-center">
-          Gestión de Vehículos
-        </h1>
-        <button
-          className="hidden bg-primary-100 text-white py-2 px-4 rounded lg:flex items-center"
-          onClick={handleCreateVehicle}
-        >
-          <FaPlus className="mr-2" /> Agregar Vehículo
-        </button>
+    <div className="max-w-5xl mx-auto p-4 mt-36 min-h-screen">
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <div className="flex lg:justify-between mb-4">
+          <h1 className="text-4xl font-bold text-primary-100 flex items-center">
+            Gestión de Vehículos
+          </h1>
+          <button
+            className="hidden bg-primary-100 text-white py-2 px-4 rounded lg:flex items-center"
+            onClick={handleAddVehicleClick}
+          >
+            <FaPlus className="mr-2" /> Agregar Vehículo
+          </button>
+        </div>
+
+        {/* Botón de Agregar Vehículo para pantallas pequeñas */}
+        <div className="flex lg:hidden justify-start mb-6">
+          <button
+            onClick={handleAddVehicleClick}
+            className="bg-primary-100 text-white py-2 px-4 rounded flex items-center"
+          >
+            <FaPlus className="mr-2" /> Agregar Vehículo
+          </button>
+        </div>
+
+        <VehicleList
+          vehicles={vehicles}
+          onEditVehicle={(vehicle) => handleSelectVehicle(vehicle, "edit")}
+          onDeleteVehicle={(vehicle) => handleSelectVehicle(vehicle, "delete")}
+        />
+
+        {/* Formulario de Creación */}
+        {isCreating && (
+          <div className="mt-8">
+            <CreateVehicle
+              onCreateVehicle={handleCreateVehicle}
+              onCancel={handleCancel}
+            />
+          </div>
+        )}
+
+        {/* Formulario de Edición */}
+        {isEditing && selectedVehicle && (
+          <div className="mt-8">
+            <EditVehicle
+              vehicle={selectedVehicle}
+              onEditVehicle={handleEditVehicle}
+              onCancel={handleCancel}
+            />
+          </div>
+        )}
+
+        {/* Confirmación de Eliminación */}
+        {isDeleting && selectedVehicle && (
+          <div className="mt-8">
+            <DeleteVehicle
+              vehicle={selectedVehicle}
+              onDeleteVehicle={handleDeleteVehicle}
+              onCancel={handleCancel}
+            />
+          </div>
+        )}
       </div>
-      <button
-        className="bg-primary-100 text-white mb-8 py-2 px-4 rounded lg:hidden flex items-center"
-        onClick={handleCreateVehicle}
-      >
-        <FaPlus className="mr-2" /> Agregar Vehículo
-      </button>
-      <VehicleList
-        vehicles={vehicles}
-        onEditVehicle={handleEditVehicle}
-        onDeleteVehicle={handleDeleteVehicle}
-      />
     </div>
   );
 };

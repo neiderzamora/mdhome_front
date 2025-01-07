@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "nextjs-toast-notify";
-import { updateVehicle } from "@/api/service_api";
+import { updateAddress } from "@/api/service_api";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 
 // Reusable FormField Component
@@ -32,24 +32,28 @@ const FormField = ({ field, value, onChange, error }) => {
   );
 };
 
-const EditVehicle = ({ vehicle, onEditVehicle, onCancel }) => {
+const EditAddress = ({ address, onEditAddress, onCancel }) => {
   const [formData, setFormData] = useState({
-    plate: "",
-    color: "",
-    brand: "",
+    line_address: "",
+    neighborhood: "",
+    city: "VILLAVICENCIO",
+    department: "META",
+    description: "",
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (vehicle) {
+    if (address) {
       setFormData({
-        plate: vehicle.plate,
-        color: vehicle.color,
-        brand: vehicle.brand,
+        line_address: address.line_address,
+        neighborhood: address.neighborhood,
+        city: address.city,
+        department: address.department,
+        description: address.description,
       });
     }
-  }, [vehicle]);
+  }, [address]);
 
   const showSuccessToast = (message) => {
     toast.success(message, {
@@ -75,9 +79,9 @@ const EditVehicle = ({ vehicle, onEditVehicle, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const updatedVehicle = await updateVehicle(vehicle.id, formData);
-      onEditVehicle(updatedVehicle);
-      showSuccessToast("Vehículo actualizado con éxito.");
+      const updatedAddress = await updateAddress(address.id, formData);
+      onEditAddress(updatedAddress);
+      showSuccessToast("Dirección editada con éxito.");
       setErrors({});
     } catch (error) {
       if (error.response && error.response.data) {
@@ -93,27 +97,29 @@ const EditVehicle = ({ vehicle, onEditVehicle, onCancel }) => {
 
         setErrors(formattedErrors);
       } else {
-        showErrorToast("Error al actualizar el vehículo.");
+        showErrorToast("Error al actualizar la dirección.");
       }
-      console.error("Error en handleSubmit:", error);
+      console.error("Error al actualizar dirección:", error);
     }
   };
 
-  if (!vehicle) {
-    return <div>No se ha seleccionado un vehículo para editar.</div>;
+  if (!address) {
+    return <div>No se ha seleccionado una dirección para editar.</div>;
   }
 
-  const vehicleFields = [
-    { name: "plate", label: "Número de Placa", placeholder: "Ingrese el número de placa" },
-    { name: "color", label: "Color", placeholder: "Ingrese el color del vehículo" },
-    { name: "brand", label: "Marca", placeholder: "Ingrese la marca del vehículo" },
+  const addressFields = [
+    { name: "department", label: "Departamento", placeholder: "Departamento", disabled: true },
+    { name: "city", label: "Ciudad", placeholder: "Ciudad", disabled: true },
+    { name: "neighborhood", label: "Barrio", placeholder: "Ingrese el barrio" },
+    { name: "line_address", label: "Línea de Dirección", placeholder: "Ingrese la línea de dirección" },
+    { name: "description", label: "Descripción", placeholder: "Ingrese una descripción" },
   ];
 
   return (
     <div className="max-w-5xl mx-auto px-4">
-      <h2 className="text-3xl font-bold mb-4 text-primary-100">Editar Vehículo</h2>
+      <h2 className="text-3xl font-bold mb-4 text-primary-100">Editar Dirección</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
-        {vehicleFields.map((field) => (
+        {addressFields.map((field) => (
           <FormField
             key={field.name}
             field={field}
@@ -142,4 +148,4 @@ const EditVehicle = ({ vehicle, onEditVehicle, onCancel }) => {
   );
 };
 
-export default EditVehicle;
+export default EditAddress;

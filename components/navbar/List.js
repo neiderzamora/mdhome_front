@@ -140,7 +140,7 @@ export const PatienceDropdownMenu = () => {
       <NavLink href="/profile" icon={<FaUserCircle />}>
         Mi Perfil
       </NavLink>
-      <NavLink href="/dashboard/history-service" icon={<FaLocationDot />}>
+      <NavLink href="/addresses" icon={<FaLocationDot />}>
         Direcciones
       </NavLink>
       <NavLink href="/settings" icon={<FaCog />}>

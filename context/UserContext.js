@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useState, useEffect } from "react";
-import axios from "axios";
+import React, { createContext, useState, useEffect } from 'react';
+import { getPatientByEmail, getDoctorByEmail, getPatientById, getDoctorById } from '@/api/service_api';
+import { toast } from 'nextjs-toast-notify';
 
 export const UserContext = createContext();
 
@@ -9,63 +10,79 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const fetchUserData = async () => {
-    const token = localStorage.getItem("api_key");
-    const email = localStorage.getItem("user_email");
+    const token = localStorage.getItem('api_key');
+    const email = localStorage.getItem('user_email');
+
     if (token && email) {
       try {
-        let userDetails;
+        let userDetails = null;
+        let userType = null;
 
-        // Intentar obtener los datos del usuario como paciente
+        // Intentar obtener los datos como paciente
         try {
-          const patientResponse = await axios.get("http://127.0.0.1:8000/api/patient/", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          console.log("Patient data fetched:", patientResponse.data);
-          if (Array.isArray(patientResponse.data.results)) {
-            userDetails = patientResponse.data.results.find(user => user.email === email);
+          const patientData = await getPatientByEmail(email, token);
+          if (patientData) {
+            userDetails = patientData;
+            userType = 'patient';
+            localStorage.setItem('patient_id', userDetails.id);
+            console.log('Usuario identificado como Paciente:', userDetails);
           }
         } catch (error) {
           if (error.response && error.response.status === 403) {
-            console.log("No permissions for patient, trying doctor...");
-            // Si no se encuentra como paciente, intentar obtener los datos como doctor
-            const doctorResponse = await axios.get("http://127.0.0.1:8000/api/doctor/", {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            console.log("Doctor data fetched:", doctorResponse.data);
-            if (Array.isArray(doctorResponse.data.results)) {
-              userDetails = doctorResponse.data.results.find(user => user.email === email);
-            }
+            console.log('Permiso denegado al intentar obtener datos como Paciente.');
           } else {
-            throw error;
+            console.error('Error al obtener paciente por email:', error);
+            toast.error('Error al obtener datos del paciente.', { duration: 3000 });
+          }
+        }
+
+        // Si no es paciente, intentar como doctor
+        if (!userDetails) {
+          try {
+            const doctorData = await getDoctorByEmail(email, token);
+            if (doctorData) {
+              userDetails = doctorData;
+              userType = 'doctor';
+              localStorage.setItem('doctor_id', userDetails.id);
+              console.log('Usuario identificado como Doctor:', doctorData);
+            }
+          } catch (error) {
+            if (error.response && error.response.status === 403) {
+              console.log('Permiso denegado al intentar obtener datos como Doctor.');
+            } else {
+              console.error('Error al obtener doctor por email:', error);
+              toast.error('Error al obtener datos del doctor.', { duration: 3000 });
+            }
           }
         }
 
         if (userDetails) {
-          console.log("User details fetched:", userDetails);
-          setUser(userDetails);
+          setUser({ ...userDetails, type: userType });
         } else {
-          console.error("User not found.");
+          console.error('Usuario no encontrado como Paciente ni como Doctor.');
+          toast.error('Usuario no encontrado.', { duration: 3000 });
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error('Error al obtener los datos del usuario:', error);
+        toast.error('Error al obtener los datos del usuario.', { duration: 3000 });
       }
     } else {
-      console.log("No token or email found in localStorage.");
+      console.log('No se encontró token o email en localStorage.');
     }
   };
 
   useEffect(() => {
     fetchUserData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem("api_key");
-    localStorage.removeItem("user_email");
+    localStorage.removeItem('api_key');
+    localStorage.removeItem('user_email');
+    localStorage.removeItem('doctor_id');
+    localStorage.removeItem('patient_id');
+    toast.success('Has cerrado sesión exitosamente.', { duration: 3000 });
   };
 
   return (

@@ -30,7 +30,7 @@ const SignInForm = () => {
         duration: 5000,
         position: "top-center",
       });
-      router.push("/");
+      router.push("/request-service");
     } catch (err) {
       const errorMessage = err.response?.data?.error || "Error durante el inicio de sesión";
       toast.error(errorMessage, {

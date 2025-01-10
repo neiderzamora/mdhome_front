@@ -1,10 +1,12 @@
+// components/request-service/RequestService.jsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "nextjs-toast-notify";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
-import { fetchAddresses } from "@/api/service_api";
+import { fetchAddresses, createServiceRequest } from "@/api/service_api";
 
 const RequestService = () => {
   const [address, setAddress] = useState("");
@@ -20,7 +22,7 @@ const RequestService = () => {
         const addresses = await fetchAddresses();
         setSavedAddresses(addresses);
       } catch (err) {
-        toast.error("Error fetching addresses", {
+        toast.error("Error al obtener direcciones", {
           position: "top-center",
           autoHideDuration: 3000,
         });
@@ -32,23 +34,43 @@ const RequestService = () => {
 
   const handleAddSymptom = () => {
     if (symptomInput.trim()) {
-      setSymptoms([...symptoms, symptomInput]);
+      setSymptoms([...symptoms, symptomInput.trim()]);
       setSymptomInput("");
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (address && symptoms.length > 0 && paymentMethod) {
-      // Aquí deberías manejar la lógica de envío del formulario
-      toast.success("Solicitud enviada con éxito.", {
-        position: "top-center",
-        autoHideDuration: 3000,
-      });
+      const data = {
+        location: address,
+        symptoms: symptoms.join(", "),
+        type_payment: paymentMethod,
+      };
+
+      try {
+        const response = await createServiceRequest(data);
+        const id = response.data.id;
+        toast.success(response.status || "Solicitud enviada con éxito.", {
+          position: "top-center",
+          autoHideDuration: 6000,
+        });
+        toast.success(response.message || "Solicitud enviada con éxito.", {
+          position: "top-center",
+          autoHideDuration: 6000,
+        });
+        router.push(`/request-service/details/${id}`);
+      } catch (error) {
+        toast.error("Error al enviar la solicitud.", {
+          position: "top-center",
+          autoHideDuration: 3000,
+        });
+        console.error("Error en el envío de la solicitud:", error);
+      }
     } else {
       toast.error("Por favor, completa todos los campos requeridos.", {
         position: "top-center",
-        duration: 3000,
+        autoHideDuration: 3000,
       });
     }
   };
@@ -104,7 +126,7 @@ const AddressSection = ({
   return (
     <div>
       <label className="block text-lg font-medium text-primary-100 mb-2">
-        Agregar Dirección
+        Seleccionar Dirección
       </label>
       <div className="flex items-center space-x-4">
         <select
@@ -114,7 +136,7 @@ const AddressSection = ({
         >
           <option value="">Selecciona una dirección</option>
           {savedAddresses.map((addr) => (
-            <option key={addr.id} value={addr.line_address}>
+            <option key={addr.id} value={addr.id}>
               {addr.line_address} - {addr.neighborhood}
             </option>
           ))}
@@ -147,7 +169,7 @@ const SymptomsSection = ({
           type="text"
           value={symptomInput}
           onChange={(e) => setSymptomInput(e.target.value)}
-          placeholder="Síntoma"
+          placeholder="Síntomas"
           className="border p-2 w-full rounded focus:outline-none focus:ring-1 focus:ring-primary-100"
         />
         <button
@@ -185,8 +207,8 @@ const PaymentMethodSection = ({ paymentMethod, setPaymentMethod }) => {
         className="border p-2 w-full rounded focus:outline-none focus:ring-1 focus:ring-primary-100"
       >
         <option value="">Selecciona un método de pago</option>
-        <option value="credit-card">Tarjeta de Crédito</option>
-        <option value="paypal">Efectivo</option>
+        <option value="TRANSFERENCIA">Transferencia</option>
+        <option value="EFECTIVO">Efectivo</option>
       </select>
     </div>
   );

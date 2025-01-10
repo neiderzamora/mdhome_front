@@ -166,9 +166,9 @@ export default function RegisterForm() {
               label="Género"
               required
               options={[
-                { value: "M", label: "Masculino" },
-                { value: "F", label: "Femenino" },
-                { value: "O", label: "Otro" },
+                { value: "MASCULINO", label: "Masculino" },
+                { value: "FEMENINO", label: "Femenino" },
+                { value: "OTRO", label: "Otro" },
               ]}
               value={formData.gender}
               onChange={handleChange}

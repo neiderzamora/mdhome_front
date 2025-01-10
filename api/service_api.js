@@ -234,3 +234,39 @@ export const deleteVehicle = async (id) => {
     throw error;
   }
 };
+
+
+// -------------------- Funciones CRUD para Solicitudes de Servicio -------------------- //
+
+export const createServiceRequest = async (data) => {
+  try {
+    const response = await api.post('/patient/service_request/new/', data);
+    console.log("Respuesta de createServiceRequest:", response.data); // Agrega esta línea
+    return response.data;
+  } catch (error) {
+    console.error("Error en createServiceRequest:", error);
+    throw error;
+  }
+};
+
+export const getServiceRequestById = async (id) => {
+  try {
+    const response = await api.get(`/patient/service_request/${id}/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error en getServiceRequestById:", error);
+    throw error;
+  }
+};
+
+
+// Funciones para obtener solicitudes de servicio pendientes
+export const fetchPendingServiceRequests = async () => {
+  try {
+    const response = await api.get('/service_requests/pending/');
+    return response.data;
+  } catch (error) {
+    console.error('Error en fetchPendingServiceRequests:', error);
+    throw error;
+  }
+};

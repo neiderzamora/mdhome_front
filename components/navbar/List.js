@@ -30,7 +30,7 @@ export const NavLink = ({ href, icon, children }) => (
 }
 export const PatienceNavlinks = () => (
   <nav className="hidden md:flex space-x-6">
-    <NavLink href="/services">Solicitar servicio</NavLink>
+    <NavLink href="/request-service">Solicitar servicio</NavLink>
     <NavLink href="/about">Acerca de</NavLink>
     <NavLink href="/contact">Centro ayuda</NavLink>
   </nav>

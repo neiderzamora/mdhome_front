@@ -70,8 +70,8 @@ const UserDetails = ({ userId, userType }) => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h2 className="text-4xl font-semibold mb-6 text-gray-800">Detalles del Usuario</h2>
-      <div className="bg-white shadow-lg rounded-3xl p-8">
+      <h2 className="text-4xl font-semibold mb-6 text-primary-100">Detalles del Usuario</h2>
+      <div className="bg-white shadow-lg rounded-2xl p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {userFields.map(field => (
             <div key={field.name} className="flex flex-col">
@@ -82,7 +82,7 @@ const UserDetails = ({ userId, userType }) => {
         </div>
         <div className="mt-8 flex justify-end">
           <Link href="/profile/edit">
-            <button className="bg-primary-100 text-white px-6 py-3 rounded-full shadow-md hover:bg-primary-200 transition">
+            <button className="bg-primary-100 text-white px-6 py-3 rounded shadow-md hover:bg-primary-200 transition">
               Editar Usuario
             </button>
           </Link>

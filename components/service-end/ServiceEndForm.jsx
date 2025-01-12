@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { toast } from 'nextjs-toast-notify';
+import { useRouter } from 'next/navigation';
+import { completeServiceRequest } from '@/api/service_api';
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 
 const InputField = ({ label, type, value, onChange, placeholder, name, isTextArea }) => (
@@ -29,13 +31,14 @@ const InputField = ({ label, type, value, onChange, placeholder, name, isTextAre
     </div>
 );
 
-const ServiceEndForm = () => {
+const ServiceEndForm = ({ requestId }) => {
+    const router = useRouter();
     const [formData, setFormData] = useState({
-        incapacity: '',
-        daysOfIncapacity: '',
+        inability: '',
+        inability_days: '',
         observations: '',
-        cie10Code: '',
-        cie10Description: ''
+        cie10_code: '',
+        cie10_description: ''
     });
 
     const handleChange = (e) => {
@@ -43,25 +46,34 @@ const ServiceEndForm = () => {
         setFormData(prevData => ({ ...prevData, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Basic validation
-        if (!formData.incapacity || !formData.daysOfIncapacity) {
+        if (!formData.inability || !formData.inability_days) {
             toast.error("Por favor, complete todos los campos obligatorios.", {
-                position: "top-right", // Cambia la posición del toast
-                duration: 3000, // Duración en milisegundos
+                position: "top-right",
+                duration: 3000,
             });
             return;
         }
 
-        console.log(formData);
-        toast.success('Formulario enviado con éxito', {
-            position: "top-right", // Cambia la posición del toast
-            duration: 3000, // Duración en milisegundos
-        });
+        try {
+            const response = await completeServiceRequest(requestId, formData);
+            
+            toast.success(response.message || 'Servicio finalizado con éxito', {
+                position: "top-right",
+                duration: 3000,
+            });
 
-        // Aquí puedes agregar la lógica para enviar los datos a la API o manejar el formulario
+            // Redireccionar al dashboard después de completar
+            router.push('/dashboard');
+        } catch (error) {
+            toast.error("Error al finalizar el servicio.", {
+                position: "top-right",
+                duration: 3000,
+            });
+            console.error("Error:", error);
+        }
     };
 
     return (
@@ -71,18 +83,18 @@ const ServiceEndForm = () => {
                 <InputField 
                     label="Incapacidad"
                     type="text"
-                    value={formData.incapacity}
+                    value={formData.inability}
                     onChange={handleChange}
                     placeholder="Descripción de la incapacidad"
-                    name="incapacity"
+                    name="inability"
                 />
                 <InputField 
                     label="Días de Incapacidad"
                     type="number"
-                    value={formData.daysOfIncapacity}
+                    value={formData.inability_days}
                     onChange={handleChange}
                     placeholder="Número de días"
-                    name="daysOfIncapacity"
+                    name="inability_days"
                 />
                 <InputField 
                     label="Observaciones"
@@ -96,25 +108,25 @@ const ServiceEndForm = () => {
                 <InputField 
                     label="Código CIE10"
                     type="text"
-                    value={formData.cie10Code}
+                    value={formData.cie10_code}
                     onChange={handleChange}
                     placeholder="Código CIE10"
-                    name="cie10Code"
+                    name="cie10_code"
                 />
                 <InputField 
                     label="Descripción CIE10"
                     type="text"
-                    value={formData.cie10Description}
+                    value={formData.cie10_description}
                     onChange={handleChange}
                     placeholder="Descripción CIE10"
-                    name="cie10Description"
-                    isTextArea={true} // Indica que este campo es un textarea
+                    name="cie10_description"
+                    isTextArea={true}
                 />
                 <button 
                     type="submit" 
                     className="bg-primary-100 text-white py-2 px-4 rounded w-full sm:w-auto"
                 >
-                    Enviar
+                    Finalizar Servicio
                 </button>
             </form>
         </div>

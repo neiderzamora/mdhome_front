@@ -270,3 +270,44 @@ export const fetchPendingServiceRequests = async () => {
     throw error;
   }
 };
+
+// Funciones para responder a solicitudes de servicio
+export const respondToServiceRequest = async (requestId, data) => {
+  try {
+    const response = await api.post(`/doctor/service_request/${requestId}/respond/`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error en respondToServiceRequest:", error);
+    throw error;
+  }
+};
+
+export const getServiceRespondById = async (id) => {
+  try {
+    const response = await api.get(`/doctor/service_request/${id}/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error en getGetServiceRespondById:", error);
+    throw error;
+  }
+}
+
+export const confirmDoctorArrival = async (id) => {
+  try {
+    const response = await api.patch(`/doctor/service_request/${id}/arrive/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error en confirmDoctorArrival:", error);
+    throw error;
+  }
+};
+
+export const completeServiceRequest = async (id, data) => {
+  try {
+    const response = await api.post(`/service_end/${id}/complete/`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error en completeServiceRequest:", error);
+    throw error;
+  }
+};

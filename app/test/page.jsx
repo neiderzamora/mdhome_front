@@ -1,16 +1,47 @@
-import AddressManagement from '@/components/addresses/AddressManagement'
-import React from '@/components/addresses/AddressList'
-import Navbar from '@/components/navbar/Navbar'
-import VehicleManagement from '@/components/vehicle/VehicleManagement'
+"use client";
 
-export default function page() {
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+const TestPage = () => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          ' http://127.0.0.1:8000/api/doctor/service_request/2353edb4-f4c8-483b-811a-e784f707154f/',
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              // Add Authorization header if needed
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM2NzA1MTUwLCJpYXQiOjE3MzY3MDE1NTAsImp0aSI6ImM5MDViOTUxNDdlMzQ3YzA4MDdiNjAyOTViZWQxNmQ3IiwidXNlcl9pZCI6ImU4NTU5N2QxLWEyMmEtNDYzZC1iMDYxLWVhOWQ0Y2QzNWY1MiJ9.XciFkDHT08k1v19A3CBGmZIk-xOTGEpeu6jF3uaSvT4'
+            }
+          }
+        );
+        console.log('Response:', response.data);
+        setData(response.data);
+      } catch (err) {
+        console.error('Error:', err);
+        setError(err.message);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (error) return <div>Error: {error}</div>;
+  if (!data) return <div>Loading...</div>;
+
   return (
     <div>
-      <Navbar/>
-      <VehicleManagement/>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
-  )
-}
+  );
+};
+
+export default TestPage;
 
 /* "use client";
 

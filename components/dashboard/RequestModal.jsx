@@ -9,31 +9,19 @@ const RequestModal = ({ request, onClose }) => {
           <FaTimes />
         </span>
         <h2>Detalles de la Solicitud</h2>
+
         <p>
-          <strong>Nombre:</strong> {selectedRequest.patientName}{" "}
-          {selectedRequest.patientLastName}
+          <strong>Género:</strong> {selectedRequest.patiend.gender}
         </p>
         <p>
-          <strong>Género:</strong> {selectedRequest.gender}
+          <strong>Edad:</strong> {selectedRequest.patient.age}
         </p>
+
         <p>
-          <strong>Edad:</strong> {selectedRequest.age}
+          <strong>Dirección:</strong>{" "}
+          {selectedRequest.location_detail.neighborhood}
         </p>
-        <p>
-          <strong>Teléfono:</strong> {selectedRequest.phone}
-        </p>
-        <p>
-          <strong>Email:</strong> {selectedRequest.email}
-        </p>
-        <p>
-          <strong>Dirección:</strong> {selectedRequest.address}
-        </p>
-        <p>
-          <strong>EPS:</strong> {selectedRequest.eps}
-        </p>
-        <p>
-          <strong>Medicina Prepagada:</strong> {selectedRequest.prepagada}
-        </p>
+
         <p>
           <strong>Síntomas:</strong> {selectedRequest.symptoms.join(", ")}
         </p>

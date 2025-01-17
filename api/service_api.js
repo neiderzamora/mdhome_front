@@ -30,6 +30,7 @@ export const loginUser = async (formData) => {
     if (token) {
       localStorage.setItem("api_key", token);
       console.log("Token almacenado:", token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
     } else {
       console.error("Token no encontrado en la respuesta");
       throw new Error("Token no encontrado en la respuesta");
@@ -37,6 +38,29 @@ export const loginUser = async (formData) => {
     return response.data;
   } catch (error) {
     console.error("Error en loginUser:", error);
+    throw error;
+  }
+};
+
+export const RefreshToken = async () => {
+  try {
+    const refresh = localStorage.getItem('refresh_token');
+    if (!refresh) {
+      throw new Error('No refresh token available');
+    }
+
+    const response = await api.post('/token/refresh/', {
+      refresh: refresh
+    });
+
+    console.log('Token refrescado exitosamente:', {
+      access: response.data.access_token ? 'Token recibido' : 'No token',
+      refresh: response.data.refresh_token ? 'Token recibido' : 'No token'
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error in RefreshToken:", error);
     throw error;
   }
 };
@@ -131,8 +155,6 @@ export const getDoctorById = async (id, token) => {
   }
 };
 
-
-
 // Funciones CRUD para direcciones
 const ADDRESS_API_URL = `${API_BASE_URL}/service-addresses/`;
 
@@ -193,10 +215,6 @@ export const fetchVehicles = async () => {
   }
 };
 
-/**
- * Crear un nuevo vehículo
- * @param {Object} vehicle - Datos del vehículo a crear
- */
 export const createVehicle = async (vehicle) => {
   try {
     const response = await api.post(VEHICLE_API_URL, vehicle);
@@ -207,11 +225,6 @@ export const createVehicle = async (vehicle) => {
   }
 };
 
-/**
- * Actualizar un vehículo existente
- * @param {number} id - ID del vehículo a actualizar
- * @param {Object} vehicle - Datos actualizados del vehículo
- */
 export const updateVehicle = async (id, vehicle) => {
   try {
     const response = await api.put(`${VEHICLE_API_URL}${id}/`, vehicle);
@@ -222,10 +235,6 @@ export const updateVehicle = async (id, vehicle) => {
   }
 };
 
-/**
- * Eliminar un vehículo
- * @param {number} id - ID del vehículo a eliminar
- */
 export const deleteVehicle = async (id) => {
   try {
     await api.delete(`${VEHICLE_API_URL}${id}/`);
@@ -310,4 +319,45 @@ export const completeServiceRequest = async (id, data) => {
     console.error("Error en completeServiceRequest:", error);
     throw error;
   }
+};
+
+// Función para obtener el historial de servicios del doctor
+export const getDoctorServiceHistory = async (token, page = 1, filters = {}) => {
+  try {
+    const params = { page, ...filters };
+    const response = await api.get('/doctor/service_request/detail/', {
+      headers: { Authorization: `Bearer ${token}` },
+      params,
+    });
+    return response.data; // Retorna los datos del historial con paginación
+  } catch (error) {
+    console.error('Error al obtener el historial de servicios del doctor:', error);
+    throw error.response ? error.response.data : 'Error desconocido';
+  }
+};
+
+export const getDoctorServiceById = async (token, id) => {
+  try {
+    const response = await api.get(`/doctor/service_request/detail/${id}/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data; // Retorna los detalles del servicio
+  } catch (error) {
+    console.error(`Error al obtener los detalles del servicio con ID ${id}:`, error);
+    throw error.response ? error.response.data : 'Error desconocido';
+  }
+};
+
+
+// Funciones para obtener servicios pendientes del paciente
+export const getPendingServiceRequests = async (token) => {
+  const response = await axios.get(
+    "http://127.0.0.1:8000/api/patient/service_request/pending/",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response.data;
 };

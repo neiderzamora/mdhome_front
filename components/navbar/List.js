@@ -7,7 +7,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
-import { MdMedicalServices } from "react-icons/md";
+import { MdMedicalServices, MdDashboard } from "react-icons/md";
 import { LuHistory } from "react-icons/lu";
 import { PiCarSimpleFill } from "react-icons/pi";
 import Link from "next/link";
@@ -96,17 +96,17 @@ export const DoctorMobileMenu = () => {
   return (
     <nav className="flex flex-col space-y-4 p-4">
       <hr className="-mt-4" />
+      <NavLink href="/dashboard" icon={<MdDashboard />}>
+        Dashboard
+      </NavLink>
+      <NavLink href="/profile" icon={<FaUserCircle />}>
+        Mi perfil
+      </NavLink>
       <NavLink href="/dashboard/history-service" icon={<LuHistory />}>
         Historial
       </NavLink>
       <NavLink href="/dashboard/vehicle" icon={<PiCarSimpleFill />}>
         Vehiculos
-      </NavLink>
-      <NavLink href="/profile" icon={<FaUserCircle />}>
-        Mi perfil
-      </NavLink>
-      <NavLink href="/settings" icon={<FaCog />}>
-        Configuraciones
       </NavLink>
       <NavLink href="/about" icon={<FaInfoCircle />}>
         Acerca de
@@ -143,8 +143,8 @@ export const PatienceDropdownMenu = () => {
       <NavLink href="/addresses" icon={<FaLocationDot />}>
         Direcciones
       </NavLink>
-      <NavLink href="/settings" icon={<FaCog />}>
-        Configuraciones
+      <NavLink href="/service-progress" icon={<FaCog />}>
+        Mi servicio
       </NavLink>
       <button
         onClick={handleLogout}
@@ -170,11 +170,11 @@ export const DoctorDropdownMenu = () => {
       <NavLink href="/profile" icon={<FaUserCircle />}>
         Mi Perfil
       </NavLink>
+      <NavLink href="/dashboard" icon={<MdDashboard />}>
+        Dashboard
+      </NavLink>
       <NavLink href="/dashboard/vehicle" icon={<PiCarSimpleFill />}>
         Vehiculos
-      </NavLink>
-      <NavLink href="/settings" icon={<FaCog />}>
-        Configuraciones
       </NavLink>
       <button
         onClick={handleLogout}

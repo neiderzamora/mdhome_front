@@ -1,6 +1,5 @@
 import Navbar from "@/components/navbar/Navbar";
-import ServiceEndForm from "@/components/service-end/ServiceEndForm";
-import React from "react";
+import ServiceEndForm from "@/components/doctor/service-end/ServiceEndForm";
 
 export default function Home({ params }) {
   const { id } = params;

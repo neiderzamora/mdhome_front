@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "@/components/navbar/Navbar";
-import ServiceRequestDetails from "@/components/request-service/ServiceRequestDetails";
+import ServiceRequestDetails from "@/components/patient/request-service/ServiceRequestDetails";
 import { useParams } from "next/navigation";
 
 const ServiceRequestDetailsPage = () => {

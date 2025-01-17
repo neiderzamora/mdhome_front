@@ -1,6 +1,6 @@
 
 // app/dashboard/request/[id]/page.jsx
-import RequestPatient from '@/components/request-patient/RequestPatient';
+import RequestPatient from '@/components/doctor/request-patient/RequestPatient';
 import Navbar from '@/components/navbar/Navbar';
 const RequestPage = ({ params }) => {
     return (

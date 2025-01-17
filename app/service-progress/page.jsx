@@ -1,12 +1,11 @@
-import DoctorDashboard from '@/components/doctor/dashboard/DoctorDashboard'
 import Navbar from '@/components/navbar/Navbar'
-import React from 'react'
+import ServiceProgress from '@/components/patient/my-service/ServiceProgress'
 
 export default function page() {
   return (
     <div>
       <Navbar/>
-      <DoctorDashboard/>
+      <ServiceProgress/>
     </div>
   )
 }

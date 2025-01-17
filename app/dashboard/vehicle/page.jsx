@@ -1,6 +1,5 @@
 import Navbar from '@/components/navbar/Navbar'
-import VehicleManagement from '@/components/vehicle/VehicleManagement'
-import React from 'react'
+import VehicleManagement from '@/components/doctor/vehicle/VehicleManagement'
 
 export default function home() {
   return (

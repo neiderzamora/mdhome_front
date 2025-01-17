@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useCallback, useContext } from "react";
+import { UserContext } from "@/context/UserContext";
+import Image from "next/image";
 import { PatienceDropdownMenu, PatienceNavlinks, PatienceMobileMenu, DoctorMobileMenu, DoctorDropdownMenu, DoctorNavlinks } from "./List";
 import { HiOutlineMenuAlt3 } from "react-icons/hi";
 import { FaUser } from "react-icons/fa";
 import Link from "next/link";
-import { UserContext } from "@/context/UserContext";
 
 export default function Navbar() {
   const { user } = useContext(UserContext);
@@ -20,8 +21,8 @@ export default function Navbar() {
     setDropdownOpen((prev) => !prev);
   }, []);
 
-  const isDoctor = user?.groups?.includes(1);
-  const isPatient = user?.groups?.includes(2);
+  const isDoctor = user?.groups?.includes(2);
+  const isPatient = user?.groups?.includes(1);
 
   return (
     <header className="bg-white shadow-md fixed w-full top-0 z-50 mb-4">
@@ -29,9 +30,16 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="text-2xl font-semibold text-primary-100 hover:text-primary-200"
+          className="text-2xl font-semibold text-primary-100 hover:text-primary-200 -my-4"
         >
-          <span className="text-secondary-100">MD</span>Home
+          {/* <span className="text-secondary-100">MD</span>Home */}
+
+          <Image
+          src="/base_text-logoname_transparent_background.png"
+          alt="Logo"
+          width={130}
+          height={130}
+          />
         </Link>
 
         {/* Navigation Links */}

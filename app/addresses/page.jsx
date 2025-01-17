@@ -1,5 +1,4 @@
-import AddAddress from "@/components/addresses/AddAddress";
-import AddressManagement from "@/components/addresses/AddressManagement";
+import AddressManagement from "@/components/patient/addresses/AddressManagement";
 import Navbar from "@/components/navbar/Navbar";
 import React from "react";
 

@@ -2,19 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FaUser, FaClock, FaMapMarkerAlt, FaStethoscope } from "react-icons/fa";
+import { FaUser, FaMapMarkerAlt, FaStethoscope } from "react-icons/fa";
 import { FaBirthdayCake } from "react-icons/fa";
 import { fetchPendingServiceRequests, respondToServiceRequest } from "@/api/service_api";
 import { toast } from "nextjs-toast-notify";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 
+import Header from "./Header";
+import RequestModal from "./RequestModal";
+
 const DoctorDashboard = () => {
-  const [requests, setRequests] = useState([]);
-  const [currentTime, setCurrentTime] = useState(
-    new Date().toLocaleTimeString()
-  );
-  const [selectedRequest, setSelectedRequest] = useState(null);
   const router = useRouter();
+  const [requests, setRequests] = useState([]);
+  const [currentTime, setCurrentTime] = useState('');
+  const [selectedRequest, setSelectedRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -43,6 +44,19 @@ const DoctorDashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const formattedTime = now.toLocaleTimeString('es-ES');
+      setCurrentTime(formattedTime);
+    };
+
+    updateTime(); // Inicializa el tiempo al montar el componente
+
+    const interval = setInterval(updateTime, 1000); // Actualiza cada segundo
+
+    return () => clearInterval(interval); // Limpia el intervalo al desmontar
+  }, []);
   const handleAcceptRequest = async (requestId) => {
     try {
       const data = {
@@ -85,14 +99,7 @@ const DoctorDashboard = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-44">
-      <h1 className="text-4xl font-bold mb-4 text-primary-100">
-        Panel del Doctor
-      </h1>
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold">
-          <FaClock className="inline mr-2" /> Hora Actual: {currentTime}
-        </h2>
-      </div>
+      <Header currentTime={currentTime} />
       <div className="mb-6">
         <h2 className="text-2xl font-semibold">Solicitudes de Pacientes</h2>
         {loading ? (
@@ -147,44 +154,8 @@ const DoctorDashboard = () => {
       </div>
 
       {selectedRequest && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4">
-              Detalles de la Solicitud
-            </h2>
-            <p>
-                <strong>Genero:</strong> {selectedRequest.patient.gender}
-            </p>
-            <p>
-              <strong>Barrio:</strong>
-              {selectedRequest.location_detail.neighborhood}
-            </p>
-            <p>
-              <strong>Edad:</strong> {selectedRequest.patient.age}
-            </p>
-           
-            <p>
-              <strong>Síntomas:</strong> {selectedRequest.symptoms}
-            </p>
-            <p>
-              <strong>Fecha de Creación:</strong>{" "}
-              {new Date(selectedRequest.created_at).toLocaleString()}
-            </p>
-            <p>
-              <strong>Tipo de Pago:</strong> {selectedRequest.type_payment}
-            </p>
-            <p>
-              <strong>Estado:</strong> {selectedRequest.status}
-            </p>
-            <button
-              onClick={handleCloseModal}
-              className="mt-4 bg-primary-100 text-white py-2 px-4 rounded w-full sm:w-auto"
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
+        <RequestModal request={selectedRequest} onClose={handleCloseModal} />
+        )}
     </div>
   );
 };

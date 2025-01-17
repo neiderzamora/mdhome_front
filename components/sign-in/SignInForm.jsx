@@ -3,6 +3,7 @@
 import { useState, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "nextjs-toast-notify";
+import Link from "next/link";
 import { loginUser } from "@/api/service_api";
 import { UserContext } from "@/context/UserContext";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
@@ -30,7 +31,7 @@ const SignInForm = () => {
         duration: 5000,
         position: "top-center",
       });
-      router.push("/request-service");
+      //router.push("/request-service");
     } catch (err) {
       const errorMessage = err.response?.data?.error || "Error durante el inicio de sesión";
       toast.error(errorMessage, {
@@ -86,6 +87,14 @@ const SignInForm = () => {
           >
             Iniciar Sesión
           </button>
+          
+          <Link
+            href="/register"
+            className="flex w-full mt-2 justify-center rounded-md bg-secondary-100 px-3 py-1.5 text-lg font-semibold text-white shadow-sm hover:bg-secondary-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-100"
+          >
+            Registrarse
+          </Link>
+        
         </div>
       </form>
     </div>

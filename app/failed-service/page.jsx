@@ -1,4 +1,4 @@
-import FailedService from '@/components/failed-service/FailedService'
+import FailedService from '@/components/doctor/failed-service/FailedService'
 import Navbar from '@/components/navbar/Navbar'
 import React from 'react'
 

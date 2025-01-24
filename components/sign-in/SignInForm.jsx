@@ -26,7 +26,7 @@ const SignInForm = () => {
     try {
       const res = await loginUser(formData);
       localStorage.setItem("user_email", formData.email);
-      await fetchUserData();
+      await fetchUserData(true);
       toast.success("Inicio de sesión exitoso", {
         duration: 5000,
         position: "top-center",

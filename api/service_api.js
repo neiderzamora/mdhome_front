@@ -350,14 +350,22 @@ export const getDoctorServiceById = async (token, id) => {
 
 
 // Funciones para obtener servicios pendientes del paciente
-export const getPendingServiceRequests = async (token) => {
-  const response = await axios.get(
-    "http://127.0.0.1:8000/api/patient/service_request/pending/",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  return response.data;
+export const getPendingServiceRequests = async () => {
+  try {
+    const response = await api.get("/patient/service_request/pending/");
+    return response.data;
+  } catch (error) {
+    console.error("Error en getPendingServiceRequests:", error);
+    throw error;
+  }
+};
+
+export const deleteServiceRequest = async (id) => {
+  try {
+    const response = await api.delete(`/patient/service_request/${id}/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar la solicitud de servicio:", error);
+    throw error;
+  }
 };

@@ -32,7 +32,11 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const fetchUserData = async () => {
+  /**
+   * Fetches the user data.
+   * @param {boolean} doRedirect - If true, redirects the user based on their group after fetching data.
+   */
+  const fetchUserData = async (doRedirect = false) => {
     const token = localStorage.getItem("api_key");
     const email = localStorage.getItem("user_email");
 
@@ -48,7 +52,7 @@ export const UserProvider = ({ children }) => {
             userDetails = patientData;
             userType = "patient";
             localStorage.setItem("patient_id", userDetails.id);
-            //console.log("Usuario identificado como Paciente:", userDetails);
+            // console.log("Usuario identificado como Paciente:", userDetails);
           }
         } catch (error) {
           if (error.response && error.response.status === 403) {
@@ -71,7 +75,7 @@ export const UserProvider = ({ children }) => {
               userDetails = doctorData;
               userType = "doctor";
               localStorage.setItem("doctor_id", userDetails.id);
-              //console.log("Usuario identificado como Doctor:", doctorData);
+              // console.log("Usuario identificado como Doctor:", doctorData);
             }
           } catch (error) {
             if (error.response && error.response.status === 403) {
@@ -90,21 +94,26 @@ export const UserProvider = ({ children }) => {
         if (userDetails) {
           setUser({ ...userDetails, type: userType });
 
-          // Asumiendo que el campo "groups" es un arreglo de números
-          const userGroups = userDetails.groups || [];
+          if (doRedirect) {
+            const userGroups = userDetails.groups || [];
 
-          if (userGroups.includes(2)) {
-            // Si el usuario pertenece al grupo 2 (Doctor), redirigir a /dashboard
-            router.push("/dashboard");
-          } else if (userGroups.includes(1)) {
-            // Si el usuario pertenece al grupo 1 (Paciente), redirigir a /request-service
-            router.push("/request-service");
-          } else {
-            // Opcional: manejar otros grupos o usuarios sin grupo asignado
-            console.warn("El usuario no pertenece a ningún grupo conocido.");
+            if (userGroups.includes(2)) {
+              // Si el usuario pertenece al grupo 2 (Doctor), redirigir a /dashboard
+              router.push("/dashboard");
+            } else if (userGroups.includes(1)) {
+              // Si el usuario pertenece al grupo 1 (Paciente), redirigir a /request-service
+              router.push("/request-service");
+            } else {
+              // Opcional: manejar otros grupos o usuarios sin grupo asignado
+              console.warn(
+                "El usuario no pertenece a ningún grupo conocido."
+              );
+            }
           }
         } else {
-          console.error("Usuario no encontrado como Paciente ni como Doctor.");
+          console.error(
+            "Usuario no encontrado como Paciente ni como Doctor."
+          );
           toast.error("Usuario no encontrado.", { duration: 3000 });
         }
       } catch (error) {
@@ -129,8 +138,9 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem("user_email");
     localStorage.removeItem("doctor_id");
     localStorage.removeItem("patient_id");
-    localStorage.removeItem("refresh_token")
+    localStorage.removeItem("refresh_token");
     toast.success("Has cerrado sesión exitosamente.", { duration: 3000 });
+    router.push("/sign-in"); // Redirigir al inicio de sesión después de cerrar sesión
   };
 
   return (

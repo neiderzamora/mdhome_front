@@ -1,29 +1,22 @@
-// components/ServiceProgress.jsx
-
 "use client";
 
-import React, { useState, useEffect, useContext } from "react";
-import { UserContext } from "@/context/UserContext";
-import { getPendingServiceRequests } from "@/api/service_api";
+import React, { useState, useEffect } from "react";
+import { getPendingServiceRequests, deleteServiceRequest } from "@/api/service_api";
 import { toast } from "nextjs-toast-notify";
 
 const ServiceProgress = () => {
-  const { user } = useContext(UserContext);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Estado para el modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
   useEffect(() => {
     const fetchServices = async () => {
-      if (!user || !user.token) {
-        toast.error("No estás autenticado. Por favor, inicia sesión.", {
-          duration: 3000,
-        });
-        return;
-      }
-
       try {
-        const data = await getPendingServiceRequests(user.token);
+        const data = await getPendingServiceRequests();
         setServices(data.results);
       } catch (err) {
         console.error("Error al obtener servicios pendientes:", err);
@@ -37,11 +30,35 @@ const ServiceProgress = () => {
     };
 
     fetchServices();
-  }, [user]);
+  }, []);
 
-  const handleViewDetails = (serviceId) => {
-    // Implementa la lógica para ver detalles, por ahora solo alerta
-    alert(`Ver detalles de la solicitud: ${serviceId}`);
+  const openModal = (service) => {
+    setSelectedService(service);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedService(null);
+    setIsModalOpen(false);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedService) return;
+
+    try {
+      await deleteServiceRequest(selectedService.id);
+      setServices(services.filter((service) => service.id !== selectedService.id));
+      toast.success("Solicitud eliminada correctamente.", {
+        duration: 3000,
+      });
+    } catch (err) {
+      console.error("Error al eliminar la solicitud:", err);
+      toast.error("Error al eliminar la solicitud.", {
+        duration: 3000,
+      });
+    } finally {
+      closeModal();
+    }
   };
 
   if (loading) {
@@ -73,16 +90,46 @@ const ServiceProgress = () => {
                 <strong>Estado:</strong> {service.status}
               </p>
               <button
-                onClick={() => handleViewDetails(service.id)}
-                className="mt-2 bg-primary-500 text-white py-1 px-3 rounded hover:bg-primary-600 transition-colors"
+                onClick={() => openModal(service)}
+                className="mt-2 bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 transition-colors"
               >
-                Ver Detalle
+                Eliminar
               </button>
             </li>
           ))}
         </ul>
       ) : (
         <p>No tienes solicitudes pendientes.</p>
+      )}
+
+      {/* Modal de Confirmación */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md mx-auto p-6">
+            <h2 className="text-xl font-semibold mb-4">Confirmar Eliminación</h2>
+            <p className="mb-6">
+              ¿Estás seguro de que deseas eliminar esta solicitud de servicio creada el{" "}
+              {selectedService?.created_at
+                ? new Date(selectedService.created_at).toLocaleDateString("es-ES")
+                : ""}
+              "? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

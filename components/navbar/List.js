@@ -5,6 +5,7 @@ import {
   FaEnvelope,
   FaCog,
   FaSignOutAlt,
+  FaHospitalUser,
 } from "react-icons/fa";
 import { HiBellAlert } from "react-icons/hi2";
 import { FaLocationDot } from "react-icons/fa6";
@@ -103,6 +104,9 @@ export const DoctorMobileMenu = () => {
       <NavLink href="/profile" icon={<FaUserCircle />}>
         Mi perfil
       </NavLink>
+      <NavLink href="/dashboard/request" icon={<FaHospitalUser />}>
+        Servicio Acivo
+      </NavLink>
       <NavLink href="/dashboard/history-service" icon={<LuHistory />}>
         Historial
       </NavLink>
@@ -170,6 +174,9 @@ export const DoctorDropdownMenu = () => {
     <div className="py-2 px-4 space-y-1 flex-col">
       <NavLink href="/profile" icon={<FaUserCircle />}>
         Mi Perfil
+      </NavLink>
+      <NavLink href="/dashboard/request" icon={<FaHospitalUser />}>
+        Servicio Activo
       </NavLink>
       <NavLink href="/dashboard" icon={<MdDashboard />}>
         Dashboard

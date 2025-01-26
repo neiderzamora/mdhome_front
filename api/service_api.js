@@ -369,3 +369,13 @@ export const deleteServiceRequest = async (id) => {
     throw error;
   }
 };
+
+export const getDoctorServiceRequestList = async () => {
+  try {
+    const response = await api.get('/doctor/service_request/list/');
+    return response.data;
+  } catch (error) {
+    console.error('Error en getDoctorServiceRequestList:', error);
+    throw error;
+  }
+};

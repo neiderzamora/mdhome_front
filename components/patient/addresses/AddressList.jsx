@@ -1,42 +1,78 @@
-import React from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import React, { useMemo, useCallback } from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import PropTypes from "prop-types";
 
 const AddressList = ({ addresses, onEditAddress, onDeleteAddress }) => {
-  return (
-    <section className="flex flex-wrap justify-center mb-4 p-4 bg-white rounded-lg shadow-md">
-      {addresses.map((address) => (
-        <div key={address.id} className="w-full lg:w-1/2 py-4 lg:px-4">
-          <div className="flex justify-between bg-gray-100 p-4 rounded-lg shadow-md">
-            <div>
-              <h2 className="text-xl font-bold mb-2 text-primary-100">
-                {address.line_address}
-              </h2>
-              <p className="text-gray-600">
-                {address.neighborhood}
-              </p>
-              <p className="text-gray-600">
-                {address.description}
-              </p>
-            </div>
-            <div className="flex gap-x-2 my-auto">
-              <button
-                className="bg-primary-100 text-white py-2 px-4 rounded flex items-center"
-                onClick={() => onEditAddress(address)}
-              >
-                <FaEdit />
-              </button>
-              <button
-                className="bg-red-500 text-white py-2 px-4 rounded flex items-center"
-                onClick={() => onDeleteAddress(address)}
-              >
-                <FaTrash />
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
-    </section>
-  );
+  // Memorizar la lista de direcciones para evitar re-renderizados innecesarios
+  const renderedAddresses = useMemo(() => {
+    return addresses.map((address) => (
+      <AddressItem
+        key={address.id}
+        address={address}
+        onEditAddress={onEditAddress}
+        onDeleteAddress={onDeleteAddress}
+      />
+    ));
+  }, [addresses, onEditAddress, onDeleteAddress]);
+
+  return <section>{renderedAddresses}</section>;
 };
 
-export default AddressList;
+AddressList.displayName = "AddressList";
+
+const AddressItem = React.memo(
+  ({ address, onEditAddress, onDeleteAddress }) => {
+    // Memorizar el manejador de edición para cada dirección
+    const handleEdit = useCallback(() => {
+      onEditAddress(address);
+    }, [onEditAddress, address]);
+
+    // Memorizar el manejador de eliminación para cada dirección
+    const handleDelete = useCallback(() => {
+      onDeleteAddress(address);
+    }, [onDeleteAddress, address]);
+
+    return (
+      <div className="flex justify-between items-center border-b py-4">
+        <div>
+          <p className="text-gray-600 font-bold">{address.line_address}</p>
+          <p className="text-gray-600">{address.neighborhood}</p>
+        </div>
+        <div className="flex gap-x-2 my-auto">
+          <button
+            className="bg-primary-100 text-white py-2 px-4 rounded flex items-center"
+            onClick={handleEdit}
+            aria-label="Editar dirección"
+          >
+            <FaEdit />
+          </button>
+          <button
+            className="bg-red-500 text-white py-2 px-4 rounded flex items-center"
+            onClick={handleDelete}
+            aria-label="Eliminar dirección"
+          >
+            <FaTrash />
+          </button>
+        </div>
+      </div>
+    );
+  }
+);
+
+AddressItem.displayName = "AddressItem";
+
+AddressList.propTypes = {
+  addresses: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      address_line: PropTypes.string.isRequired,
+      neighborhood: PropTypes.string.isRequired,
+      description: PropTypes.string,
+    })
+  ).isRequired,
+  onEditAddress: PropTypes.func.isRequired,
+  onDeleteAddress: PropTypes.func.isRequired,
+};
+
+export default React.memo(AddressList);
+AddressList.displayName = "AddressList";

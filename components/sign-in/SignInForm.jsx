@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useContext } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "nextjs-toast-notify";
 import Link from "next/link";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Importar los iconos necesarios
 import { loginUser } from "@/api/service_api";
 import { UserContext } from "@/context/UserContext";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
@@ -15,11 +16,16 @@ const SignInForm = () => {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  const toggleShowPassword = useCallback(() => {
+    setShowPassword((prev) => !prev);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +39,8 @@ const SignInForm = () => {
       });
       //router.push("/request-service");
     } catch (err) {
-      const errorMessage = err.response?.data?.error || "Error durante el inicio de sesión";
+      const errorMessage =
+        err.response?.data?.error || "Error durante el inicio de sesión";
       toast.error(errorMessage, {
         duration: 5000,
         position: "top-center",
@@ -45,60 +52,66 @@ const SignInForm = () => {
     <div className="mx-auto w-full max-w-sm">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-lg font-medium text-gray-900">
+          <label
+            htmlFor="email"
+            className="block text-lg font-medium text-gray-900"
+          >
             Correo electrónico
           </label>
-          <div className="mt-2">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              autoComplete="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="block border p-2 mt-2 w-full"
-            />
-          </div>
+          <input
+            type="email"
+            name="email"
+            id="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+          />
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-lg font-medium text-gray-900">
+        <div className="relative">
+          <label
+            htmlFor="password"
+            className="block text-lg font-medium text-gray-900"
+          >
             Contraseña
           </label>
-          <div className="mt-2">
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              value={formData.password}
-              onChange={handleChange}
-              className="block border p-2 mt-2 w-full"
-            />
-          </div>
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            id="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+          />
+          <button
+            type="button"
+            onClick={toggleShowPassword}
+            className="absolute inset-y-0 right-0 mt-8 pr-3 flex items-center text-gray-600 focus:outline-none"
+            aria-label={
+              showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+            }
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
         </div>
 
-        <div>
-          <button
-            type="submit"
-            className="flex w-full justify-center rounded-md bg-primary-100 px-3 py-1.5 text-lg font-semibold text-white shadow-sm hover:bg-primary-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-100"
-          >
-            Iniciar Sesión
-          </button>
-          
-          <Link
-            href="/register"
-            className="flex w-full mt-2 justify-center rounded-md bg-secondary-100 px-3 py-1.5 text-lg font-semibold text-white shadow-sm hover:bg-secondary-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-100"
-          >
-            Registrarse
+        <button
+          type="submit"
+          className="w-full bg-primary-100 text-white py-2 px-4 rounded hover:bg-primary-200 transition-colors"
+        >
+          Iniciar Sesión
+        </button>
+
+        <div className="text-center">
+          <Link href="/register" className="text-blue-500 hover:underline">
+            ¿No tienes una cuenta? Regístrate
           </Link>
-        
         </div>
       </form>
     </div>
   );
 };
 
-export default SignInForm;
+export default React.memo(SignInForm);

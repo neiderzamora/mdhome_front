@@ -5,7 +5,7 @@ import { UserContext } from '@/context/UserContext';
 import { RefreshToken } from '@/api/service_api';
 
 const SESSION_WARNING_TIME = 60 * 60 * 1000; // 59 minutos en milisegundos
-const SESSION_CHECK_INTERVAL = 1000 * 60; // Revisar cada minuto
+const SESSION_CHECK_INTERVAL = 1000 * 1; // Revisar cada minuto
 
 const SessionManager = () => {
   const { user, fetchUserData } = useContext(UserContext);

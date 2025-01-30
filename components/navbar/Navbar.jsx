@@ -21,8 +21,8 @@ export default function Navbar() {
     setDropdownOpen((prev) => !prev);
   }, []);
 
-  const isDoctor = user?.groups?.includes(2);
-  const isPatient = user?.groups?.includes(1);
+  const isDoctor = user?.groups?.includes(1);
+  const isPatient = user?.groups?.includes(2);
 
   return (
     <header className="bg-white shadow-md fixed w-full top-0 z-50 mb-4">

@@ -97,10 +97,10 @@ export const UserProvider = ({ children }) => {
           if (doRedirect) {
             const userGroups = userDetails.groups || [];
 
-            if (userGroups.includes(2)) {
+            if (userGroups.includes(1)) {
               // Si el usuario pertenece al grupo 2 (Doctor), redirigir a /dashboard
               router.push("/dashboard");
-            } else if (userGroups.includes(1)) {
+            } else if (userGroups.includes(2)) {
               // Si el usuario pertenece al grupo 1 (Paciente), redirigir a /request-service
               router.push("/request-service");
             } else {

@@ -1,30 +1,15 @@
+import RequestPatient from "@/components/doctor/request-patient/RequestPatient";
+import Navbar from "@/components/navbar/Navbar";
 
-// app/dashboard/request/[id]/page.jsx
-import RequestPatient from '@/components/doctor/request-patient/RequestPatient';
-import Navbar from '@/components/navbar/Navbar';
-const RequestPage = ({ params }) => {
-    return (
-        <>
-            <Navbar />
-            <RequestPatient requestId={params.id} />
-        </>
-    );
-};
+const RequestPage = async ({ params }) => {
+  const { id } = await Promise.resolve(params);
 
-export default RequestPage;
-/* import React from 'react';
-import RequestPatient from '@/components/request-patient/RequestPatient';
-import Navbar from '@/components/navbar/Navbar';
-
-async function RequestPage({ params }) {
-  const id = await params.id;
-  
   return (
     <>
       <Navbar />
-      <RequestPatient id={id} />
+      <RequestPatient requestId={id} />
     </>
   );
-}
+};
 
-export default RequestPage; */
+export default RequestPage;

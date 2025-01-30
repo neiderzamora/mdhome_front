@@ -22,6 +22,8 @@ const ServiceRequestCard = React.memo(({ request, onViewDetails }) => (
   </div>
 ));
 
+ServiceRequestCard.displayName = "ServiceRequestCard";
+
 const RequestPatientList = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,11 +70,14 @@ const RequestPatientList = () => {
         <ServiceRequestCard
           key={request.id}
           request={request}
-          onViewDetails={handleViewDetails}
+          onViewDetails={() => handleViewDetails(request.id)}
         />
       ))}
     </div>
   );
 };
 
-export default React.memo(RequestPatientList);
+const MemoizedRequestPatientList = React.memo(RequestPatientList);
+MemoizedRequestPatientList.displayName = "RequestPatientList";
+
+export default MemoizedRequestPatientList;

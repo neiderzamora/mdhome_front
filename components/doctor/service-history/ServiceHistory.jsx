@@ -1,16 +1,14 @@
-// components/service-history/ServiceHistory.jsx
-
 "use client";
 
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import useDoctorServiceHistory from '@/components/hooks/useDoctorServiceHistory';
 import { UserContext } from '@/context/UserContext';
 import Link from "next/link";
 
 const ServiceHistory = () => {
   const { user } = useContext(UserContext);
-  const token = localStorage.getItem('api_key');
-
+  const [token, setToken] = useState('');
+  
   // Estados para paginación y filtros
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
@@ -19,9 +17,17 @@ const ServiceHistory = () => {
     endDate: '',
   });
 
+  // Mover el acceso a localStorage a un useEffect
+  useEffect(() => {
+    setToken(localStorage.getItem('api_key'));
+  }, []);
+
   const { serviceHistory, count, next, previous, loading, error } = useDoctorServiceHistory(token, page, filters);
 
-  // Manejadores de filtros
+  // Si no hay token aún, mostrar loading
+  if (!token) return <p className="text-center text-lg text-gray-600">Cargando...</p>;
+
+  // Resto del código permanece igual...
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({
@@ -31,7 +37,6 @@ const ServiceHistory = () => {
     setPage(1);
   };
 
-  // Manejadores de paginación
   const handleNextPage = () => {
     if (next) {
       setPage(page + 1);
@@ -45,7 +50,7 @@ const ServiceHistory = () => {
   };
 
   if (loading) return <p className="text-center text-lg text-gray-600">Cargando historial de servicios...</p>;
-  if (error) return <p className="text-center text-red-500">Error: {error.message || 'No se pudo cargar el historial.'}</p>;
+  if (error) return <p className="text-center text-red-500">Error: {error.message || 'Ha ocurrido un error'}</p>;
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-44">

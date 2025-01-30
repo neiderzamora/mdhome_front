@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getPendingServiceRequests, deleteServiceRequest } from "@/api/service_api";
+import {
+  getPendingServiceRequests,
+  deleteServiceRequest,
+} from "@/api/service_api";
 import { toast } from "nextjs-toast-notify";
 
 const ServiceProgress = () => {
@@ -47,7 +50,9 @@ const ServiceProgress = () => {
 
     try {
       await deleteServiceRequest(selectedService.id);
-      setServices(services.filter((service) => service.id !== selectedService.id));
+      setServices(
+        services.filter((service) => service.id !== selectedService.id)
+      );
       toast.success("Solicitud eliminada correctamente.", {
         duration: 3000,
       });
@@ -62,7 +67,9 @@ const ServiceProgress = () => {
   };
 
   if (loading) {
-    return <p className="text-center">Cargando tus solicitudes pendientes...</p>;
+    return (
+      <p className="text-center">Cargando tus solicitudes pendientes...</p>
+    );
   }
 
   if (error) {
@@ -71,7 +78,9 @@ const ServiceProgress = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-44">
-      <h1 className="text-4xl font-bold mb-4 text-primary-100">Mis Solicitudes Pendientes</h1>
+      <h1 className="text-4xl font-bold mb-4 text-primary-100">
+        Mis Solicitudes Pendientes
+      </h1>
       {services.length > 0 ? (
         <ul className="space-y-4">
           {services.map((service) => (
@@ -106,13 +115,18 @@ const ServiceProgress = () => {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md mx-auto p-6">
-            <h2 className="text-xl font-semibold mb-4">Confirmar Eliminación</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Confirmar Eliminación
+            </h2>
             <p className="mb-6">
-              ¿Estás seguro de que deseas eliminar esta solicitud de servicio creada el{" "}
+              ¿Estás seguro de que deseas eliminar esta solicitud de servicio
+              creada el{" "}
               {selectedService?.created_at
-                ? new Date(selectedService.created_at).toLocaleDateString("es-ES")
+                ? new Date(selectedService.created_at).toLocaleDateString(
+                    "es-ES"
+                  )
                 : ""}
-              "? Esta acción no se puede deshacer.
+              &quot;? Esta acción no se puede deshacer.
             </p>
             <div className="flex justify-end space-x-4">
               <button

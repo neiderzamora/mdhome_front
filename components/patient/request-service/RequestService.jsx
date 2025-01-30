@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "nextjs-toast-notify";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
@@ -32,52 +32,87 @@ const RequestService = () => {
     getAddresses();
   }, []);
 
-  const handleAddSymptom = () => {
+  const handleAddSymptom = useCallback(() => {
     if (symptomInput.trim()) {
-      setSymptoms([...symptoms, symptomInput.trim()]);
+      setSymptoms((prevSymptoms) => [...prevSymptoms, symptomInput.trim()]);
       setSymptomInput("");
     }
-  };
+  }, [symptomInput]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (address && symptoms.length > 0 && paymentMethod) {
-      const data = {
-        location: address,
-        symptoms: symptoms.join(", "),
-        type_payment: paymentMethod,
-      };
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      if (address && symptoms.length > 0 && paymentMethod) {
+        const data = {
+          location: address,
+          symptoms: symptoms.join(", "),
+          type_payment: paymentMethod,
+        };
 
-      try {
-        const response = await createServiceRequest(data);
-        const id = response.data.id;
-        toast.success(response.status || "Solicitud enviada con éxito.", {
-          position: "top-center",
-          autoHideDuration: 6000,
-        });
-        toast.success(response.message || "Solicitud enviada con éxito.", {
-          position: "top-center",
-          autoHideDuration: 6000,
-        });
-        router.push(`/request-service/details/${id}`);
-      } catch (error) {
-        toast.error("Error al enviar la solicitud.", {
+        try {
+          const response = await createServiceRequest(data);
+          const id = response.data.id;
+          toast.success(response.status || "Solicitud enviada con éxito.", {
+            position: "top-center",
+            autoHideDuration: 6000,
+          });
+          toast.success(response.message || "Solicitud enviada con éxito.", {
+            position: "top-center",
+            autoHideDuration: 6000,
+          });
+          router.push(`/request-service/details/${id}`);
+        } catch (error) {
+          toast.error("Error al enviar la solicitud.", {
+            position: "top-center",
+            autoHideDuration: 3000,
+          });
+          console.error("Error en el envío de la solicitud:", error);
+        }
+      } else {
+        toast.error("Por favor, completa todos los campos requeridos.", {
           position: "top-center",
           autoHideDuration: 3000,
         });
-        console.error("Error en el envío de la solicitud:", error);
       }
-    } else {
-      toast.error("Por favor, completa todos los campos requeridos.", {
-        position: "top-center",
-        autoHideDuration: 3000,
-      });
-    }
-  };
+    },
+    [address, symptoms, paymentMethod, router]
+  );
 
-  const handleAddAddress = () => {
+  const handleAddAddress = useCallback(() => {
     router.push("/addresses");
-  };
+  }, [router]);
+
+  // Memorizar las secciones para evitar renderizados innecesarios
+  const AddressSectionMemo = useMemo(() => {
+    return (
+      <AddressSection
+        address={address}
+        setAddress={setAddress}
+        savedAddresses={savedAddresses}
+        handleAddAddress={handleAddAddress}
+      />
+    );
+  }, [address, savedAddresses, handleAddAddress]);
+
+  const SymptomsSectionMemo = useMemo(() => {
+    return (
+      <SymptomsSection
+        symptomInput={symptomInput}
+        setSymptomInput={setSymptomInput}
+        handleAddSymptom={handleAddSymptom}
+        symptoms={symptoms}
+      />
+    );
+  }, [symptomInput, handleAddSymptom, symptoms]);
+
+  const PaymentMethodSectionMemo = useMemo(() => {
+    return (
+      <PaymentMethodSection
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+      />
+    );
+  }, [paymentMethod, setPaymentMethod]);
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-44">
@@ -85,25 +120,13 @@ const RequestService = () => {
         Solicitar Servicio
       </h1>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <AddressSection
-          address={address}
-          setAddress={setAddress}
-          savedAddresses={savedAddresses}
-          handleAddAddress={handleAddAddress}
-        />
-        <SymptomsSection
-          symptomInput={symptomInput}
-          setSymptomInput={setSymptomInput}
-          handleAddSymptom={handleAddSymptom}
-          symptoms={symptoms}
-        />
-        <PaymentMethodSection
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-        />
+        {AddressSectionMemo}
+        {SymptomsSectionMemo}
+        {PaymentMethodSectionMemo}
         <button
           type="submit"
           className="mt-4 bg-primary-100 text-lg text-white py-2 px-6 rounded shadow-lg hover:bg-primary-200 transition duration-300"
+          disabled={!address || symptoms.length === 0 || !paymentMethod}
         >
           Enviar
         </button>
@@ -118,10 +141,13 @@ const AddressSection = ({
   savedAddresses,
   handleAddAddress,
 }) => {
-  const handleAddressChange = (e) => {
-    const { value } = e.target;
-    setAddress(value);
-  };
+  const handleAddressChange = useCallback(
+    (e) => {
+      const { value } = e.target;
+      setAddress(value);
+    },
+    [setAddress]
+  );
 
   return (
     <div>
@@ -192,9 +218,12 @@ const SymptomsSection = ({
 };
 
 const PaymentMethodSection = ({ paymentMethod, setPaymentMethod }) => {
-  const handlePaymentMethodChange = (e) => {
-    setPaymentMethod(e.target.value);
-  };
+  const handlePaymentMethodChange = useCallback(
+    (e) => {
+      setPaymentMethod(e.target.value);
+    },
+    [setPaymentMethod]
+  );
 
   return (
     <div>

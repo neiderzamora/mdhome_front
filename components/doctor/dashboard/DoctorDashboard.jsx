@@ -1,23 +1,41 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { FaUser, FaMapMarkerAlt, FaStethoscope } from "react-icons/fa";
-import { FaBirthdayCake } from "react-icons/fa";
-import { fetchPendingServiceRequests, respondToServiceRequest } from "@/api/service_api";
+import { FaUser, FaMapMarkerAlt, FaStethoscope, FaBirthdayCake } from "react-icons/fa";
+import {
+  fetchPendingServiceRequests,
+  respondToServiceRequest,
+  fetchVehicles,
+} from "@/api/service_api";
 import { toast } from "nextjs-toast-notify";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 
 import Header from "./Header";
 import RequestModal from "./RequestModal";
+import VehicleSelectionModal from "./VehicleSelectionModal";
 
 const DoctorDashboard = () => {
   const router = useRouter();
   const [requests, setRequests] = useState([]);
-  const [currentTime, setCurrentTime] = useState('');
+  const [vehicles, setVehicles] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showVehicleModal, setShowVehicleModal] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [pendingRequestId, setPendingRequestId] = useState(null);
+
+  // Función para obtener los vehículos del doctor
+  const fetchDoctorVehicles = useCallback(async () => {
+    try {
+      const data = await fetchVehicles();
+      setVehicles(data);
+    } catch (error) {
+      console.error("Error al obtener vehículos:", error);
+      toast.error("Error al obtener los vehículos disponibles.");
+    }
+  }, []);
 
   useEffect(() => {
     const getPendingRequests = async () => {
@@ -36,74 +54,65 @@ const DoctorDashboard = () => {
     };
 
     getPendingRequests();
+    fetchDoctorVehicles(); // Cargar vehículos al montar el componente
+  }, [fetchDoctorVehicles]);
 
-    const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString());
-    }, 1000);
-
-    return () => clearInterval(timer);
+  // Función para manejar el inicio del proceso de aceptar solicitud
+  const handleAcceptRequest = useCallback((requestId) => {
+    setPendingRequestId(requestId);
+    setShowVehicleModal(true);
   }, []);
 
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const formattedTime = now.toLocaleTimeString('es-ES');
-      setCurrentTime(formattedTime);
-    };
+  // Función para confirmar la selección del vehículo y proceder con la aceptación
+  const handleConfirmVehicle = useCallback(async () => {
+    if (!selectedVehicle || !pendingRequestId) {
+      toast.error("Por favor seleccione un vehículo");
+      return;
+    }
 
-    updateTime(); // Inicializa el tiempo al montar el componente
-
-    const interval = setInterval(updateTime, 1000); // Actualiza cada segundo
-
-    return () => clearInterval(interval); // Limpia el intervalo al desmontar
-  }, []);
-  const handleAcceptRequest = async (requestId) => {
     try {
       const data = {
         doctor_latitude: "4.145201",
         doctor_longitude: "-73.62783",
+        vehicle: selectedVehicle, // Enviar el ID del vehículo seleccionado
       };
-      const response = await respondToServiceRequest(requestId, data);
-      console.log("Respuesta completa:", response);
-  
-      // Verificar la estructura correcta de la respuesta
+      console.log("Datos a enviar:", data); // Log datos a enviar
+
+      const response = await respondToServiceRequest(pendingRequestId, data);
+
       if (!response.data.id) {
-        console.error("ID no encontrado en la respuesta:", response);
-        toast.error("Error: No se pudo obtener el ID de la solicitud aceptada");
-        return;
+        throw new Error("ID no encontrado en la respuesta");
       }
-      
-      // Obtener el ID correcto de la estructura anidada
-      const acceptedRequestId = response.data.id;
-      console.log("ID de la solicitud aceptada:", acceptedRequestId);
-      
-      toast.success(response.data.status || "Solicitud aceptada exitosamente.", { 
-        duration: 3000 
-      });
-      
-      // Redireccionar con el ID correcto
-      router.push(`/dashboard/request/${acceptedRequestId}`);
+
+      toast.success("Solicitud aceptada exitosamente.", { duration: 3000 });
+      router.push(`/dashboard/request/${response.data.id}`);
     } catch (error) {
-      toast.error("Error al aceptar la solicitud.", { duration: 3000 });
       console.error("Error al aceptar la solicitud:", error);
+      toast.error("Error al aceptar la solicitud.", { duration: 3000 });
+    } finally {
+      setShowVehicleModal(false);
+      setPendingRequestId(null);
+      setSelectedVehicle(null);
     }
-  };
+  }, [selectedVehicle, pendingRequestId, router]);
 
-  const handleViewDetails = (request) => {
+  // Función para ver detalles de la solicitud
+  const handleViewDetails = useCallback((request) => {
     setSelectedRequest(request);
-  };
+  }, []);
 
-  const handleCloseModal = () => {
+  // Función para cerrar el modal de detalles
+  const handleCloseModal = useCallback(() => {
     setSelectedRequest(null);
-  };
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-44">
-      <Header currentTime={currentTime} />
+      <Header /> {/* No se pasa currentTime como prop */}
       <div className="mb-6">
         <h2 className="text-2xl font-semibold">Solicitudes de Pacientes</h2>
         {loading ? (
-          <p>Cargando solicitudes pendientes...</p>
+          <p className="text-gray-600">Cargando solicitudes pendientes...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : requests.length > 0 ? (
@@ -134,13 +143,13 @@ const DoctorDashboard = () => {
                 <div className="mt-2">
                   <button
                     onClick={() => handleAcceptRequest(request.id)}
-                    className="bg-primary-100 text-white py-2 px-4 rounded mr-2"
+                    className="bg-primary-100 text-white py-2 px-4 rounded mr-2 hover:bg-primary-200 transition-colors"
                   >
                     Aceptar Solicitud
                   </button>
                   <button
                     onClick={() => handleViewDetails(request)}
-                    className="bg-secondary-100 text-white py-2 px-4 rounded"
+                    className="bg-secondary-100 text-white py-2 px-4 rounded hover:bg-secondary-200 transition-colors"
                   >
                     Ver Detalles
                   </button>
@@ -153,9 +162,18 @@ const DoctorDashboard = () => {
         )}
       </div>
 
+      {showVehicleModal && (
+        <VehicleSelectionModal
+          vehicles={vehicles}
+          selectedVehicle={selectedVehicle}
+          setSelectedVehicle={setSelectedVehicle}
+          handleConfirmVehicle={handleConfirmVehicle}
+          setShowVehicleModal={setShowVehicleModal}
+        />
+      )}
       {selectedRequest && (
         <RequestModal request={selectedRequest} onClose={handleCloseModal} />
-        )}
+      )}
     </div>
   );
 };

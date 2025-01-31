@@ -1,8 +1,8 @@
 import Navbar from "@/components/navbar/Navbar";
 import ServiceEndForm from "@/components/doctor/service-end/ServiceEndForm";
 
-export default function Home({ params }) {
-  const { id } = params;
+const Home = async ({ params }) => {
+  const { id } = await Promise.resolve(params);
 
   return (
     <div>
@@ -11,3 +11,5 @@ export default function Home({ params }) {
     </div>
   );
 }
+
+export default Home;

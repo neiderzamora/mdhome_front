@@ -379,3 +379,19 @@ export const getDoctorServiceRequestList = async () => {
     throw error;
   }
 };
+
+export const getCIE10Codes = async (code = "", description = "", page = 1) => {
+  try {
+    const response = await api.get("/cie10-code/", {
+      params: {
+        code,         // Parámetro específico para filtrar por código
+        description,  // Parámetro específico para filtrar por descripción
+        page,         // Parámetro de paginación
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error en getCIE10Codes:", error);
+    throw error;
+  }
+};

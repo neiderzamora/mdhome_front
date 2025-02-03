@@ -59,7 +59,7 @@ export const PatienceMobileMenu = () => {
   };
   return (
     <nav className="flex flex-col space-y-4 p-4">
-      <NavLink href="/" icon={<MdMedicalServices />}>
+      <NavLink href="/request-service" icon={<MdMedicalServices />}>
         Solicitar servicio
       </NavLink>
       <NavLink href="/profile" icon={<FaUserCircle />}>
@@ -105,7 +105,7 @@ export const DoctorMobileMenu = () => {
         Mi perfil
       </NavLink>
       <NavLink href="/dashboard/request" icon={<FaHospitalUser />}>
-        Servicio Acivo
+        Servicio Activo
       </NavLink>
       <NavLink href="/dashboard/history-service" icon={<LuHistory />}>
         Historial

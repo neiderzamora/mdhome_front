@@ -9,6 +9,7 @@ import { useServiceRequest } from '../../hooks/useServiceRequest';
 import MapView from './MapView';
 import ServiceDetails from './ServiceDetails';
 import ActionButtons from './ActionButtons';
+import ObtainGeolocation from '@/components/geolocation/ObtainGeolocation';
 
 const STATUS = {
   PENDING: "PENDIENTE",
@@ -22,7 +23,7 @@ const RequestPatient = ({ requestId }) => {
   const [hasConfirmedArrival, setHasConfirmedArrival] = useState(false);
   const [status, setStatus] = useState(null);
   const [doctorPosition, setDoctorPosition] = useState([4.142, -73.626]);
-  const arrivalPosition = [4.153, -73.634];
+  const arrivalPosition = [4.134970188524484, -73.63587218689933];
   const { serviceData, loading, error } = useServiceRequest(requestId);
 
   useEffect(() => {
@@ -32,6 +33,11 @@ const RequestPatient = ({ requestId }) => {
       setStatus(STATUS.ARRIVED);
     }
   }, [requestId]);
+
+  const handleLocation = (loc) => {
+    setDoctorPosition([loc.latitude, loc.longitude]);
+  };
+
 
   const handleConfirmArrival = async () => {
     try {
@@ -57,7 +63,7 @@ const RequestPatient = ({ requestId }) => {
       </h1>
 
       <ServiceDetails {...serviceData} />
-      
+      <ObtainGeolocation onLocation={handleLocation} />
       <div className="mb-6">
         <MapView 
           //doctorPosition={serviceData.doctorPosition}

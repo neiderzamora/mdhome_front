@@ -199,7 +199,7 @@ const ServiceEndForm = ({ requestId }) => {
             <button
               type="button"
               onClick={handleSearch}
-              className="bg-primary-600 text-white p-2 rounded-r hover:bg-primary-700 transition-colors"
+              className="bg-primary-100 text-white p-2 rounded-r hover:bg-primary-100/80 transition-colors"
               disabled={loading}
             >
               {loading ? "Buscando..." : "Buscar"}
@@ -267,7 +267,7 @@ const ServiceEndForm = ({ requestId }) => {
         {/* Botón de Envío */}
         <button
           type="submit"
-          className="bg-primary-600 text-white py-2 px-4 rounded w-full sm:w-auto hover:bg-primary-700 transition-colors"
+          className="bg-primary-100 text-white py-2 px-4 rounded w-full sm:w-auto hover:bg-primary-700 transition-colors"
         >
           Finalizar Servicio
         </button>

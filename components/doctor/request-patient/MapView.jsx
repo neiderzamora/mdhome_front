@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import axios from 'axios';
+import ReactDOMServer from "react-dom/server";
+import { FaLocationDot } from "react-icons/fa6";
+import { FaUserDoctor } from "react-icons/fa6";
 import 'leaflet/dist/leaflet.css';
 
 // Delete default icon settings
@@ -15,6 +18,31 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
 });
+
+const patientIcon = L.divIcon({
+    html: ReactDOMServer.renderToString(
+        <div style={{ filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.5))", display: "inline-block" }}>
+          <FaLocationDot color="#f00" size={30} />
+        </div>
+      ),
+  iconSize: [30, 30],
+  className: "custom-div-icon", // Clear default styles with custom CSS if needed.
+  iconAnchor: [10, 20],
+  popupAnchor: [0, -40],
+});
+
+const doctorIcon = L.divIcon({
+  html: ReactDOMServer.renderToString(
+      <div style={{ filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.5))", display: "inline-block" }}>
+        <FaUserDoctor color="#042159" size={30} />
+      </div>
+    ),
+iconSize: [30, 30],
+className: "custom-div-icon", // Clear default styles with custom CSS if needed.
+iconAnchor: [10, 20],
+popupAnchor: [0, -40],
+});
+
 
 const MapView = ({ doctorPosition, arrivalPosition }) => {
   const [route, setRoute] = useState([]);
@@ -50,10 +78,10 @@ const MapView = ({ doctorPosition, arrivalPosition }) => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      <Marker position={doctorPosition}>
+      <Marker position={doctorPosition} icon={doctorIcon}>
         <Popup>Doctor en camino</Popup>
       </Marker>
-      <Marker position={arrivalPosition}>
+      <Marker position={arrivalPosition} icon={patientIcon}>
         <Popup>Ubicación del paciente</Popup>
       </Marker>
       {route.length > 0 && <Polyline positions={route} color="darkblue" />}

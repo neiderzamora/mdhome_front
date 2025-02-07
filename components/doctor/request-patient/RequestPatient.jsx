@@ -23,7 +23,6 @@ const RequestPatient = ({ requestId }) => {
   const [hasConfirmedArrival, setHasConfirmedArrival] = useState(false);
   const [status, setStatus] = useState(null);
   const [doctorPosition, setDoctorPosition] = useState([4.142, -73.626]);
-  const arrivalPosition = [4.134970188524484, -73.63587218689933];
   const { serviceData, loading, error } = useServiceRequest(requestId);
 
   useEffect(() => {
@@ -55,6 +54,10 @@ const RequestPatient = ({ requestId }) => {
   if (loading) return <p>Cargando datos del servicio...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!serviceData) return <p>No se encontraron datos del servicio</p>;
+  const arrivalPosition = [
+    serviceData.patientLatitude,
+    serviceData.patientLongitude,
+  ];
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-44">

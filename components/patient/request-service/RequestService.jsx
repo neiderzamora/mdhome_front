@@ -1,5 +1,3 @@
-// components/request-service/RequestService.jsx
-
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
@@ -48,18 +46,19 @@ const RequestService = () => {
           symptoms: symptoms.join(", "),
           type_payment: paymentMethod,
         };
-
+  
         try {
           const response = await createServiceRequest(data);
           const id = response.data.id;
-          toast.success(response.status || "Solicitud enviada con éxito.", {
-            position: "top-center",
-            autoHideDuration: 6000,
-          });
-          toast.success(response.message || "Solicitud enviada con éxito.", {
-            position: "top-center",
-            autoHideDuration: 6000,
-          });
+          toast.success(
+            response.status || "Solicitud enviada con éxito.",
+            { position: "top-center", autoHideDuration: 6000 }
+          );
+          toast.success(
+            response.message || "Solicitud enviada con éxito.",
+            { position: "top-center", autoHideDuration: 6000 }
+          );
+          
           router.push(`/request-service/details/${id}`);
         } catch (error) {
           toast.error("Error al enviar la solicitud.", {

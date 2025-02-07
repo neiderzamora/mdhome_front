@@ -27,7 +27,9 @@ export const useServiceRequest = (requestId) => {
             parseFloat(response.doctor_latitude),
             parseFloat(response.doctor_longitude),
           ],
-          patientRequestId: response.service_request.id
+          patientRequestId: response.service_request.id,
+          patientLatitude: response.service_request.location_detail.latitude,
+          patientLongitude: response.service_request.location_detail.longitude,
         });
       } catch (error) {
         setError(error.message);

@@ -4,33 +4,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "nextjs-toast-notify";
 import { updateAddress } from "@/api/service_api";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
-
-// Reusable FormField Component
-const FormField = ({ field, value, onChange, error }) => {
-  const { name, label, placeholder, type = "text", disabled = false } = field;
-
-  return (
-    <div>
-      <label className="block text-lg font-medium text-primary-100">
-        {label}
-      </label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={`border p-2 mt-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-primary-100 ${
-          error ? "border-red-500" : ""
-        }`}
-      />
-      {error && (
-        <p className="text-red-500 text-sm mt-1">{error.join(" ")}</p>
-      )}
-    </div>
-  );
-};
+import LocationMap from "@/components/geolocation/LocationMap";
 
 const EditAddress = ({ address, onEditAddress, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -39,6 +13,8 @@ const EditAddress = ({ address, onEditAddress, onCancel }) => {
     city: "VILLAVICENCIO",
     department: "META",
     description: "",
+    latitude: "",
+    longitude: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -48,9 +24,12 @@ const EditAddress = ({ address, onEditAddress, onCancel }) => {
       setFormData({
         line_address: address.line_address,
         neighborhood: address.neighborhood,
-        city: address.city,
-        department: address.department,
+        city: address.city || "VILLAVICENCIO",
+        department: address.department || "META",
         description: address.description,
+        // Initialize latitude and longitude if available; otherwise default values.
+        latitude: address.latitude,
+        longitude: address.longitude,
       });
     }
   }, [address]);
@@ -76,25 +55,29 @@ const EditAddress = ({ address, onEditAddress, onCancel }) => {
     setErrors((prevErrors) => ({ ...prevErrors, [name]: [] }));
   };
 
+  // Callback from the LocationMap to update latitude and longitude.
+  const handleLocationSelect = (loc) => {
+    console.log("location:", loc)
+    setFormData((prevData) => ({
+      ...prevData,
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const updatedAddress = await updateAddress(address.id, formData);
       onEditAddress(updatedAddress);
-      showSuccessToast("Dirección editada con éxito.");
-      setErrors({});
+      showSuccessToast("Dirección actualizada con éxito.");
     } catch (error) {
       if (error.response && error.response.data) {
         const serverErrors = error.response.data;
         const formattedErrors = {};
-        const messages = [];
-
-        // Formatear los errores por campo
         Object.keys(serverErrors).forEach((field) => {
           formattedErrors[field] = serverErrors[field];
-          messages.push(...serverErrors[field]);
         });
-
         setErrors(formattedErrors);
       } else {
         showErrorToast("Error al actualizar la dirección.");
@@ -103,42 +86,74 @@ const EditAddress = ({ address, onEditAddress, onCancel }) => {
     }
   };
 
-  if (!address) {
-    return <div>No se ha seleccionado una dirección para editar.</div>;
-  }
-
   const addressFields = [
-    { name: "department", label: "Departamento", placeholder: "Departamento", disabled: true },
-    { name: "city", label: "Ciudad", placeholder: "Ciudad", disabled: true },
-    { name: "neighborhood", label: "Barrio", placeholder: "Ingrese el barrio" },
-    { name: "line_address", label: "Línea de Dirección", placeholder: "Ingrese la línea de dirección" },
-    { name: "description", label: "Descripción", placeholder: "Ingrese una descripción" },
+    { name: "department", placeholder: "Departamento", disabled: true },
+    { name: "city", placeholder: "Ciudad", disabled: true },
+    { name: "neighborhood", placeholder: "Barrio" },
+    { name: "line_address", placeholder: "Línea de Dirección" },
+    { name: "description", placeholder: "Descripción" },
   ];
 
   return (
     <div className="max-w-5xl mx-auto px-4">
-      <h2 className="text-3xl font-bold mb-4 text-primary-100">Editar Dirección</h2>
+      <h1 className="text-3xl font-bold mb-4 text-primary-100">
+        Editar Dirección
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         {addressFields.map((field) => (
-          <FormField
-            key={field.name}
-            field={field}
-            value={formData[field.name]}
-            onChange={handleChange}
-            error={errors[field.name]}
-          />
+          <div key={field.name}>
+            <label className="block text-lg font-medium text-primary-100">
+              {field.placeholder}
+            </label>
+            <input
+              type="text"
+              name={field.name}
+              value={formData[field.name]}
+              onChange={handleChange}
+              placeholder={field.placeholder}
+              disabled={field.disabled}
+              className={`border p-2 mt-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-primary-100 ${
+                errors[field.name] ? "border-red-500" : ""
+              }`}
+            />
+            {errors[field.name] && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors[field.name].join(" ")}
+              </p>
+            )}
+          </div>
         ))}
+
+        <div>
+          <p>
+            Selecciona la ubicación en el mapa para editar la latitud y
+            longitud:
+          </p>
+          <LocationMap
+            initialPosition={[
+              formData.latitude || 4.142,
+              formData.longitude || -73.626,
+            ]}
+            onLocationSelect={handleLocationSelect}
+          />
+          <p>
+            {formData.latitude && formData.longitude
+              ? `Latitud: ${formData.latitude}, Longitud: ${formData.longitude}`
+              : "No se ha seleccionado ninguna ubicación."}
+          </p>
+        </div>
+
         <div className="flex space-x-4">
           <button
             type="submit"
-            className="bg-primary-100 text-white py-2 px-4 rounded shadow-lg hover:bg-primary-200 transition duration-300"
+            className="bg-primary-100 text-white px-4 py-2 rounded hover:bg-primary-200"
           >
-            Guardar Cambios
+            Actualizar Dirección
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="bg-gray-500 text-white py-2 px-4 rounded shadow-lg hover:bg-gray-600 transition duration-300"
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
           >
             Cancelar
           </button>

@@ -3,11 +3,13 @@
 import { useEffect, useContext, useState } from 'react';
 import { UserContext } from '@/context/UserContext';
 import { RefreshToken } from '@/api/service_api';
+import { useRouter } from 'next/navigation';
 
 const SESSION_WARNING_TIME = 60 * 60 * 1000; // 59 minutos en milisegundos
 const SESSION_CHECK_INTERVAL = 1000 * 1; // Revisar cada minuto
 
 const SessionManager = () => {
+  const router = useRouter();
   const { user, fetchUserData } = useContext(UserContext);
   const [showNotification, setShowNotification] = useState(false);
 
@@ -26,7 +28,7 @@ const SessionManager = () => {
     } catch (error) {
       console.error('Error al refrescar la sesión:', error);
       // If refresh fails, redirect to login
-      window.location.href = '/login';
+      router.push('/login');
     }
   };
 

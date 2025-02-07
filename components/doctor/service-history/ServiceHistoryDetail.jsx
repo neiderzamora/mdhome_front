@@ -4,8 +4,10 @@ import React, { useEffect, useState, useCallback } from "react";
 import { getDoctorServiceById } from "@/api/service_api";
 import DetailItem from "./DetailItem";
 import ReadMore from "./ReadMore";
+import { useRouter } from "next/navigation";
 
 const ServiceHistoryDetail = ({ id }) => {
+  const router = useRouter();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -116,7 +118,7 @@ const ServiceHistoryDetail = ({ id }) => {
 
       <div className="flex justify-end">
         <button
-          onClick={() => window.history.back()}
+          onClick={() => router.back()}
           className="bg-primary-100 text-white px-6 py-2 rounded-md hover:opacity-80 transition-colors"
         >
           Regresar

@@ -16,24 +16,14 @@ const LocationMap = ({ initialPosition = [4.142, -73.626], onLocationSelect }) =
   }, []);
 
   // Crear el icono solo cuando se esté en el entorno cliente.
-  const patientIcon = useMemo(() => {
-    return L.divIcon({
-      html: ReactDOMServer.renderToString(
-        <div
-          style={{
-            filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.5))",
-            display: "inline-block",
-          }}
-        >
-          <FaLocationDot color="#f00" size={30} />
-        </div>
-      ),
-      iconSize: [30, 30],
-      className: "custom-div-icon",
-      iconAnchor: [10, 20],
-      popupAnchor: [0, -40],
-    });
-  }, []);
+const patientIcon = L.icon({
+  iconUrl:
+    "/location_user.png",
+  iconSize: [40, 40],
+  className: "custom-div-icon",
+  iconAnchor: [15, 30],
+  popupAnchor: [0, -30],
+});
 
   const MapClickHandler = () => {
     useMapEvents({

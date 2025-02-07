@@ -51,7 +51,7 @@ const MapView = ({ doctorPosition, arrivalPosition }) => {
     const fetchRoute = async () => {
       try {
         const response = await axios.get(
-          `http://router.project-osrm.org/route/v1/driving/${doctorPosition[1]},${doctorPosition[0]};${arrivalPosition[1]},${arrivalPosition[0]}?overview=full&geometries=geojson`
+          `https://router.project-osrm.org/route/v1/driving/${doctorPosition[1]},${doctorPosition[0]};${arrivalPosition[1]},${arrivalPosition[0]}?overview=full&geometries=geojson`
         );
         const routeData = response.data;
         setRoute(

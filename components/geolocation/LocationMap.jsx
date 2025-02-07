@@ -1,30 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import ReactDOMServer from "react-dom/server";
 import { FaLocationDot } from "react-icons/fa6";
 import "leaflet/dist/leaflet.css";
 
-// Create a custom patient icon using a react-icon (FaUser) rendered to string.
-const patientIcon = L.divIcon({
-    html: ReactDOMServer.renderToString(
-        <div style={{ filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.5))", display: "inline-block" }}>
+const LocationMap = ({ initialPosition = [4.142, -73.626], onLocationSelect }) => {
+  const [mounted, setMounted] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState(initialPosition);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Crear el icono solo cuando se esté en el entorno cliente.
+  const patientIcon = useMemo(() => {
+    return L.divIcon({
+      html: ReactDOMServer.renderToString(
+        <div
+          style={{
+            filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.5))",
+            display: "inline-block",
+          }}
+        >
           <FaLocationDot color="#f00" size={30} />
         </div>
       ),
-  iconSize: [30, 30],
-  className: "custom-div-icon", // Clear default styles with custom CSS if needed.
-  iconAnchor: [10, 20],
-  popupAnchor: [0, -40],
-});
-
-const LocationMap = ({
-  initialPosition = [4.142, -73.626],
-  onLocationSelect,
-}) => {
-  const [selectedPosition, setSelectedPosition] = useState(initialPosition);
+      iconSize: [30, 30],
+      className: "custom-div-icon",
+      iconAnchor: [10, 20],
+      popupAnchor: [0, -40],
+    });
+  }, []);
 
   const MapClickHandler = () => {
     useMapEvents({
@@ -59,6 +68,8 @@ const LocationMap = ({
     }
   };
 
+  if (!mounted) return null;
+
   return (
     <div>
       <MapContainer
@@ -71,9 +82,7 @@ const LocationMap = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         <MapClickHandler />
-        {selectedPosition && (
-          <Marker position={selectedPosition} icon={patientIcon} />
-        )}
+        {selectedPosition && <Marker position={selectedPosition} icon={patientIcon} />}
       </MapContainer>
       <div style={{ marginTop: "8px", textAlign: "center" }}>
         <button

@@ -3,8 +3,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import ReactDOMServer from "react-dom/server";
-import { FaLocationDot } from "react-icons/fa6";
 import "leaflet/dist/leaflet.css";
 
 const LocationMap = ({ initialPosition = [4.142, -73.626], onLocationSelect }) => {

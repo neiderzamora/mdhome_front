@@ -1,15 +1,13 @@
 "use client";
 
 import React, { useContext, useState, useEffect } from "react";
-import useDoctorServiceHistory from "@/components/hooks/useDoctorServiceHistory";
+import usePatientServiceHistory from "@/components/hooks/usePatientServiceHistory";
 import { UserContext } from "@/context/UserContext";
 import Link from "next/link";
 
 const ServiceHistory = () => {
   const { user } = useContext(UserContext);
   const [token, setToken] = useState("");
-
-  // Estados para paginación y filtros
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
     status: "",
@@ -17,13 +15,12 @@ const ServiceHistory = () => {
     endDate: "",
   });
 
-  // Mover el acceso a localStorage a un useEffect
   useEffect(() => {
     setToken(localStorage.getItem("api_key"));
   }, []);
 
   const { serviceHistory, count, next, previous, loading, error } =
-    useDoctorServiceHistory(token, page, filters);
+    usePatientServiceHistory(token, page, filters);
 
   // Si no hay token aún, mostrar loading
   if (!token)
@@ -57,6 +54,7 @@ const ServiceHistory = () => {
         Cargando historial de servicios...
       </p>
     );
+
   if (error)
     return (
       <p className="text-center text-red-500">
@@ -66,10 +64,9 @@ const ServiceHistory = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 pt-36 lg:pt-44">
-      <h1 className="text-3xl font-bold mb-6 text-primary-600">
-        Historial de Servicios Finalizados
+      <h1 className="text-3xl font-bold mb-6 text-primary-100">
+        Historial de Servicios
       </h1>
-
       {/* Sección de Filtros */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -120,12 +117,12 @@ const ServiceHistory = () => {
         </p>
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white">
+          <div className="overflow-x-auto bg-white rounded-lg shadow">
+            <table className="min-w-full">
               <thead>
                 <tr>
                   <th className="py-3 px-6 bg-primary-200 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    Paciente
+                    Doctor
                   </th>
                   <th className="py-3 px-6 bg-primary-200 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Fecha y Hora
@@ -133,7 +130,6 @@ const ServiceHistory = () => {
                   <th className="py-3 px-6 bg-primary-200 text-left text-xs font-medium text-white uppercase tracking-wider">
                     Dirección
                   </th>
-
                   <th className="py-3 px-6 bg-primary-200 text-center text-xs font-medium text-white uppercase tracking-wider">
                     Acciones
                   </th>
@@ -143,20 +139,17 @@ const ServiceHistory = () => {
                 {serviceHistory.map((service) => (
                   <tr key={service.id} className="border-t">
                     <td className="py-4 px-6 text-sm text-gray-700">
-                      {`${service.patient.first_name} ${service.patient.last_name}`}
+                      {`${service.doctor.first_name} ${service.doctor.last_name}`}
                     </td>
                     <td className="py-4 px-6 text-sm text-gray-700">
                       {new Date(service.created_at).toLocaleDateString("es-ES")}{" "}
                       {new Date(service.created_at).toLocaleTimeString("es-ES")}
                     </td>
                     <td className="py-4 px-6 text-sm text-gray-700">
-                      {
-                        service.location.line_address
-                      }
+                      {service.location.line_address}
                     </td>
-
                     <td className="py-4 px-6 text-sm text-center">
-                      <Link href={`/dashboard/history-service/${service.id}`}>
+                      <Link href={`/patient/service-history/${service.id}`}>
                         <p className="text-blue-500 hover:underline">
                           Ver Detalles
                         </p>

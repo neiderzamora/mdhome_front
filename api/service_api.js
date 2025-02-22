@@ -349,6 +349,18 @@ export const getDoctorServiceById = async (token, id) => {
   }
 };
 
+export const getPatientServiceById = async (token, id) => {
+  try {
+    const response = await api.get(`/patient/service_request/detail/${id}/`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data; // Retorna los detalles del servicio
+  } catch (error) {
+    console.error(`Error al obtener los detalles del servicio con ID ${id}:`, error);
+    throw error.response ? error.response.data : 'Error desconocido';
+  }
+};
+
 
 // Funciones para obtener servicios pendientes del paciente
 export const getPendingServiceRequests = async () => {
@@ -393,6 +405,67 @@ export const getCIE10Codes = async (code = "", description = "", page = 1) => {
     return response.data;
   } catch (error) {
     console.error("Error en getCIE10Codes:", error);
+    throw error;
+  }
+};
+
+export const rateServiceRequest = async (id, data) => {
+  try {
+    const response = await api.post(`/service_request/${id}/rate/`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Error al calificar el servicio:", error);
+    throw error;
+  }
+};
+
+export const getPatientServiceHistory = async (token, page = 1, filters = {}) => {
+  try {
+    const params = { page, ...filters };
+    const response = await api.get('/patient/service_request/detail/', {
+      headers: { Authorization: `Bearer ${token}` },
+      params,
+    });
+    return response.data; // Retorna los datos del historial con paginación
+  } catch (error) {
+    console.error('Error al obtener el historial de servicios del doctor:', error);
+    throw error.response ? error.response.data : 'Error desconocido';
+  }
+};
+
+export const getPatientServiceRequestStatusDetails = async () => {
+  try {
+    const response = await api.get("/patient/service_request/detail/status/");
+    return response.data;
+  } catch (error) {
+    console.error("Error al obtener solicitudes por estado:", error);
+    throw error;
+  }
+};
+
+
+// Función para obtener la lista de EPS
+export const getEPSList = async (page = 1) => {
+  try {
+    const response = await api.get("/eps/", {
+      params: { page },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo EPS:", error);
+    throw error;
+  }
+};
+
+// Función para obtener la lista de Medicina Prepagada
+export const getPrepaidMedicineList = async (page = 1) => {
+  try {
+    const response = await api.get("/prepaid_medicine/", {
+      params: { page },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo Medicina Prepagada:", error);
     throw error;
   }
 };

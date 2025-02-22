@@ -2,34 +2,38 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { getPatientById, getDoctorById } from '@/api/service_api';
-import { toast } from 'nextjs-toast-notify';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import { getPatientById, getDoctorById } from "@/api/service_api";
+import { toast } from "nextjs-toast-notify";
+import Link from "next/link";
 
 const UserDetails = ({ userId, userType }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('api_key');
+      const token = localStorage.getItem("api_key");
       try {
         let data = null;
 
-        if (userType === 'patient') {
+        if (userType === "patient") {
           data = await getPatientById(userId, token);
-        } else if (userType === 'doctor') {
+        } else if (userType === "doctor") {
           data = await getDoctorById(userId, token);
         }
 
         if (data) {
           setUser(data);
         } else {
-          toast.error("No se pudo cargar la información del usuario.", { duration: 3000 });
+          toast.error("No se pudo cargar la información del usuario.", {
+            duration: 3000,
+          });
         }
       } catch (error) {
         console.error("Error al obtener los datos del usuario:", error);
-        toast.error("Error al obtener los datos del usuario.", { duration: 3000 });
+        toast.error("Error al obtener los datos del usuario.", {
+          duration: 3000,
+        });
       }
     };
     fetchUser();
@@ -63,22 +67,47 @@ const UserDetails = ({ userId, userType }) => {
   const doctorFields = [
     { name: "rethus", label: "Rethus" },
     { name: "doctor_type", label: "Tipo de Doctor" },
+    { name: "specialty", label: "Especialidad" },
   ];
 
   // Determinar los campos a mostrar según el tipo de usuario
-  const userFields = userType === 'doctor' ? [...baseFields, ...doctorFields] : [...baseFields, ...patientFields];
+  const userFields =
+    userType === "doctor"
+      ? [...baseFields, ...doctorFields]
+      : [...baseFields, ...patientFields];
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h2 className="text-4xl font-semibold mb-6 text-primary-100">Detalles del Usuario</h2>
+      <h2 className="text-4xl font-semibold mb-6 text-primary-100">
+        Detalles del Usuario
+      </h2>
       <div className="bg-white shadow-lg rounded-2xl p-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {userFields.map(field => (
-            <div key={field.name} className="flex flex-col">
-              <span className="text-sm text-primary-200 uppercase tracking-wide">{field.label}</span>
-              <span className="text-lg font-medium text-gray-700">{user[field.name] || '-'}</span>
-            </div>
-          ))}
+          {userFields.map((field) => {
+            let value = user[field.name] || "-";
+            if (field.name === "eps") {
+              value = user.eps_info?.name || "-";
+            }
+            if (field.name === "prepaid_medicine") {
+              value = user.prepaid_medicine_info?.name || "-";
+            }
+            if (field.name === "specialty") {
+              value = user.specialty_info?.name || "-";
+            }
+            if (field.name === "doctor_type") {
+              value = user.doctor_type_info?.name || "-";
+            }
+            return (
+              <div key={field.name} className="flex flex-col">
+                <span className="text-sm text-primary-200 uppercase tracking-wide">
+                  {field.label}
+                </span>
+                <span className="text-lg font-medium text-gray-700">
+                  {value}
+                </span>
+              </div>
+            );
+          })}
         </div>
         <div className="mt-8 flex justify-end">
           <Link href="/profile/edit">

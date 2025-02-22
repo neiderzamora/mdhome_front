@@ -1,17 +1,23 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { getDoctorServiceRequestList } from '@/api/service_api';
+import React, { useEffect, useState, useCallback } from "react";
+import { getDoctorServiceRequestList } from "@/api/service_api";
 import { toast } from "nextjs-toast-notify";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 // Componente Memorístico para la Tarjeta de Solicitud
 const ServiceRequestCard = React.memo(({ request, onViewDetails }) => (
   <div className="bg-white shadow-md rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center">
     <div className="flex-1">
-      <p className="text-lg font-semibold text-gray-800">Edad: {request.service_request.patient.age}</p>
-      <p className="text-md text-gray-600">Género: {request.service_request.patient.gender}</p>
-      <p className="text-md text-gray-600">Barrio: {request.service_request.location_detail.neighborhood}</p>
+      <p className="text-lg font-semibold text-gray-800">
+        Edad: {request.service_request.patient.age}
+      </p>
+      <p className="text-md text-gray-600">
+        Género: {request.service_request.patient.gender}
+      </p>
+      <p className="text-md text-gray-600">
+        Barrio: {request.service_request.location_detail.neighborhood}
+      </p>
     </div>
     <button
       onClick={() => onViewDetails(request.service_request.id)} // Navega a la página de detalles
@@ -32,9 +38,12 @@ const RequestPatientList = () => {
   const router = useRouter(); // Inicializa el router
 
   // Función memorizada para manejar la navegación
-  const handleViewDetails = useCallback((serviceRequestId) => {
-    router.push(`/dashboard/request/${serviceRequestId}`);
-  }, [router]);
+  const handleViewDetails = useCallback(
+    (serviceRequestId) => {
+      router.push(`/dashboard/request/${serviceRequestId}`);
+    },
+    [router]
+  );
 
   useEffect(() => {
     const fetchServiceRequests = async () => {
@@ -42,9 +51,9 @@ const RequestPatientList = () => {
         const data = await getDoctorServiceRequestList();
         setResults(data.results); // Asigna solo el array de resultados
       } catch (err) {
-        console.error('Error fetching service requests:', err);
-        setError('Error al obtener las solicitudes.');
-        toast.error('Error al obtener las solicitudes.', {
+        console.error("Error fetching service requests:", err);
+        setError("Error al obtener las solicitudes.");
+        toast.error("Error al obtener las solicitudes.", {
           position: "top-right",
           duration: 3000,
         });
@@ -62,6 +71,14 @@ const RequestPatientList = () => {
 
   if (error) {
     return <p className="text-center text-red-500">{error}</p>;
+  }
+
+  if (results.length === 0) {
+    return (
+      <p className="text-left text-gray-600">
+        No se encontraron solicitudes.
+      </p>
+    );
   }
 
   return (

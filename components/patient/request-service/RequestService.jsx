@@ -47,31 +47,38 @@ const RequestService = () => {
           type_payment: paymentMethod,
         };
   
-        try {
-          const response = await createServiceRequest(data);
-          const id = response.data.id;
-          toast.success(
-            response.status || "Solicitud enviada con éxito.",
-            { position: "top-center", autoHideDuration: 6000 }
-          );
-          toast.success(
-            response.message || "Solicitud enviada con éxito.",
-            { position: "top-center", autoHideDuration: 6000 }
-          );
-          
-          router.push(`/request-service/details/${id}`);
-        } catch (error) {
+      try {
+        const response = await createServiceRequest(data);
+        const id = response.data.id;
+        toast.success(
+          response.status || "Solicitud enviada con éxito.",
+          { position: "top-center", autoHideDuration: 6000 }
+        );
+        router.push(`/request-service/details/${id}`);
+      } catch (error) {
+        // Verificar si el backend envió un error personalizado
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          toast.error(error.response.data.error, {
+            position: "top-center",
+            autoHideDuration: 3000,
+          });
+        } else {
           toast.error("Error al enviar la solicitud.", {
             position: "top-center",
             autoHideDuration: 3000,
           });
-          console.error("Error en el envío de la solicitud:", error);
         }
-      } else {
-        toast.error("Por favor, completa todos los campos requeridos.", {
-          position: "top-center",
-          autoHideDuration: 3000,
-        });
+        console.error("Error en el envío de la solicitud:", error);
+      }
+    } else {
+      toast.error("Por favor, completa todos los campos requeridos.", {
+        position: "top-center",
+        autoHideDuration: 3000,
+      });
       }
     },
     [address, symptoms, paymentMethod, router]

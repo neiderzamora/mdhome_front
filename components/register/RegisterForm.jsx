@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "nextjs-toast-notify";
 import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 
+import AsyncInfiniteSelect from "@/components/forms/AsyncInfiniteSelect";
 import Logo from "../sign-in/Logo";
-import { createPatient } from "@/api/service_api";
+import { createPatient, getEPSList, getPrepaidMedicineList } from "@/api/service_api";
 import { SelectField } from "./SelectField";
 import { InputField } from "./InputField";
 
@@ -34,16 +35,67 @@ export default function RegisterForm() {
     password2: "",
     termsAccepted: false,
   });
+  const [epsValue, setEpsValue] = useState(null);
+  const [prepaidValue, setPrepaidValue] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
   };
 
+   // Función para cargar opciones de EPS con paginación
+   const loadEpsOptions = async (inputValue, loadedOptions, { page }) => {
+    try {
+      const data = await getEPSList(page);
+      const options = data.results.map((item) => ({ value: item.id, label: item.name }));
+      return {
+        options: options,
+        hasMore: data.next !== null,
+        additional: {
+          page: page + 1,
+        },
+      };
+    } catch (error) {
+      console.error("Error en loadEpsOptions:", error);
+      return { options: [] };
+    }
+  };
+
+  // Función similar para Medicina Prepagada, si lo requieres:
+  const loadPrepaidOptions = async (inputValue, loadedOptions, { page }) => {
+    try {
+      const response = await getPrepaidMedicineList(page);
+      const options = response.results.map((item) => ({ value: item.id, label: item.name }));
+      return {
+        options: options,
+        hasMore: response.next !== null,
+        additional: {
+          page: page + 1,
+        },
+      };
+    } catch (error) {
+      console.error("Error en loadPrepaidOptions:", error);
+      return { options: [] };
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validación simple
-    if (!formData.first_name || !formData.email || !formData.password) {
+
+    if (
+      !formData.first_name ||
+      !formData.last_name ||
+      !formData.email ||
+      !formData.identification_number ||
+      !formData.birthdate ||
+      !formData.gender ||
+      !formData.phone_number ||
+      !formData.address_line ||
+      !formData.password ||
+      !formData.password2 ||
+      !epsValue ||
+      !prepaidValue
+    ) {
       toast.error("Por favor, completa todos los campos requeridos.", {
         duration: 5000,
         position: "top-center",
@@ -61,33 +113,36 @@ export default function RegisterForm() {
     }
 
     // Formatear la fecha de nacimiento
-    const formattedData = {
+    const submissionData = {
       ...formData,
+      eps: epsValue.value,
+      prepaid_medicine: prepaidValue.value,
       birthdate: formatDate(formData.birthdate),
     };
 
-    //console.log("Datos del formulario:", formattedData);
+    console.log("Datos del formulario:", submissionData);
 
     try {
-      const response = await createPatient(formattedData);
+      await createPatient(submissionData);
       toast.success("Registro exitoso!", {
         duration: 5000,
         position: "top-center",
       });
       router.push("/sign-in");
-      //console.log('Response:', response);
     } catch (error) {
-      const errorMessage = error.error || 'Error durante el registro';
-      if (typeof error === 'object') {
+      const errorMessage = error.error || "Error durante el registro";
+      if (typeof error === "object") {
         Object.keys(error).forEach((key) => {
           if (Array.isArray(error[key])) {
             error[key].forEach((msg) => {
+              console.error("Error en el registro1:", msg);
               toast.error(`${msg}`, {
                 duration: 5000,
                 position: "top-center",
               });
             });
           } else {
+            console.error("Error en el registro2:", error[key]);
             toast.error(`${error[key]}`, {
               duration: 5000,
               position: "top-center",
@@ -95,12 +150,12 @@ export default function RegisterForm() {
           }
         });
       } else {
+        console.error("Error en el registro3:", error);
         toast.error(errorMessage, {
           duration: 5000,
           position: "top-center",
         });
       }
-      //console.error('Error:', error);
     }
   };
 
@@ -215,26 +270,28 @@ export default function RegisterForm() {
 
         {/* Sección de Salud */}
         <fieldset className="border p-4 rounded-md">
-          <legend className="text-xl font-bold text-primary-100">
-            Información de Salud
-          </legend>
-          <div className=" grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <InputField
-              id="eps"
-              name="eps"
-              label="EPS"
-              required
-              value={formData.eps}
-              onChange={handleChange}
-            />
-            <InputField
-              id="prepaid_medicine"
-              name="prepaid_medicine"
-              label="Medicina Prepagada"
-              required
-              value={formData.prepaid_medicine}
-              onChange={handleChange}
-            />
+          <legend className="text-xl font-bold text-primary-100">Información de Salud</legend>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div className="sm:col-span-3">
+              <label className="block mb-2 text-gray-700 font-medium">EPS</label>
+              <AsyncInfiniteSelect
+                loadOptions={loadEpsOptions}
+                value={epsValue}
+                onChange={setEpsValue}
+                placeholder="Seleccione una EPS..."
+                name="eps"
+              />
+            </div>
+            <div className="sm:col-span-3">
+              <label className="block mb-2 text-gray-700 font-medium">Medicina Prepagada</label>
+              <AsyncInfiniteSelect
+                loadOptions={loadPrepaidOptions}
+                value={prepaidValue}
+                onChange={setPrepaidValue}
+                placeholder="Seleccione Medicina Prepagada..."
+                name="prepaid_medicine"
+              />
+            </div>
           </div>
         </fieldset>
 

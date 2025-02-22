@@ -10,6 +10,7 @@ import {
 import { HiBellAlert } from "react-icons/hi2";
 import { FaLocationDot } from "react-icons/fa6";
 import { MdMedicalServices, MdDashboard, MdTaxiAlert } from "react-icons/md";
+import { TbStarsFilled } from "react-icons/tb";
 import { LuHistory } from "react-icons/lu";
 import { PiCarSimpleFill } from "react-icons/pi";
 import Link from "next/link";
@@ -70,6 +71,12 @@ export const PatienceMobileMenu = () => {
       </NavLink>
       <NavLink href="/service-progress" icon={<HiBellAlert />}>
         Mi servicio
+      </NavLink>
+      <NavLink href="/patient/rate-service" icon={<TbStarsFilled />}>
+        Calificar Servicio
+      </NavLink>
+      <NavLink href="/patient/service-history" icon={<LuHistory />}>
+        Historial
       </NavLink>
       <NavLink href="/about" icon={<FaInfoCircle />}>
         Acerca de
@@ -150,6 +157,12 @@ export const PatienceDropdownMenu = () => {
       </NavLink>
       <NavLink href="/service-progress" icon={<HiBellAlert />}>
         Mi servicio
+      </NavLink>
+      <NavLink href="/patient/rate-service" icon={<TbStarsFilled />}>
+        Calificar Servicio
+      </NavLink>
+      <NavLink href="/patient/service-history" icon={<LuHistory />}>
+        Historial
       </NavLink>
       <button
         onClick={handleLogout}

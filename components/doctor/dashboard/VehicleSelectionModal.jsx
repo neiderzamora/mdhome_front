@@ -92,7 +92,7 @@ const VehicleSelectionModal = React.memo(
               </p>
               <button
                 onClick={() => router.push("/dashboard/vehicle")}
-                className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors mx-auto"
+                className="flex items-center justify-center px-4 py-2 bg-primary-100 text-white rounded-md hover:bg-primary-100/80 transition-colors mx-auto"
               >
                 <FaPlus className="mr-2" /> Registrar Vehículo
               </button>

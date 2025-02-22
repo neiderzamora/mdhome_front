@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { getDoctorServiceById } from "@/api/service_api";
-import DetailItem from "./DetailItem";
-import ReadMore from "./ReadMore";
+import { getPatientServiceById } from "@/api/service_api";
+import DetailItem from "@/components/doctor/service-history/DetailItem";
+import ReadMore from "@/components/doctor/service-history/ReadMore";
 import { useRouter } from "next/navigation";
 
 const ServiceHistoryDetail = ({ id }) => {
@@ -15,7 +15,7 @@ const ServiceHistoryDetail = ({ id }) => {
   const fetchServiceDetail = useCallback(async () => {
     const token = localStorage.getItem("api_key");
     try {
-      const data = await getDoctorServiceById(token, id);
+      const data = await getPatientServiceById (token, id);
       setService(data);
     } catch (err) {
       setError(err.message || "Error al cargar los detalles del servicio.");
@@ -58,20 +58,14 @@ const ServiceHistoryDetail = ({ id }) => {
     patient_service_request,
     service_end,
     location,
-    patient,
+    doctor,
   } = service;
 
-
-  const patientDetails = (
+  const doctorDetails = (
     <>
-      <DetailItem label="Nombre" value={<ReadMore text={`${patient.first_name} ${patient.last_name}`} />} />
-      <DetailItem label="Género" value={patient.gender} />
-      <DetailItem label="Tipo de Documento" value={patient.identification_type} />
-      <DetailItem label="Documento" value={<ReadMore text={patient.identification_number} />} />
-      <DetailItem label="EPS" value={<ReadMore text={patient.eps_info.name} />} />
-      <DetailItem label="Medicina Prepagada" value={<ReadMore text={patient.prepaid_medicine_info.name} />} />
-      {/* <DetailItem label="Edad" value={patient.age.toString()} /> */}
-      <DetailItem label="Fecha de nacimiento" value={patient.birthdate} />
+      <DetailItem label="Nombre" value={<ReadMore text={`${doctor.first_name} ${doctor.last_name}`} />} />
+      <DetailItem label="Tipo de Documento" value={doctor.identification_type} />
+      <DetailItem label="Documento" value={<ReadMore text={doctor.identification_number} />} />
     </>
   );
 
@@ -98,9 +92,9 @@ const ServiceHistoryDetail = ({ id }) => {
     <div className="max-w-4xl mx-auto px-4 py-8 pt-36 lg:pt-44">
       <h2 className="text-3xl font-semibold mb-6 text-primary-600">Detalles del Servicio</h2>
       <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h3 className="text-xl font-medium mb-4 text-primary-500">Información del Paciente</h3>
+        <h3 className="text-xl font-medium mb-4 text-primary-500">Información del Doctor</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {patientDetails}
+          {doctorDetails}
         </div>
       </div>
 

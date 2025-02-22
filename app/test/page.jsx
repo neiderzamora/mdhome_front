@@ -1,68 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import RateServiceSection from "@/components/patient/rate-service/RateService.jsx";
 
-const GeoLocationTest = () => {
-  const [location, setLocation] = useState(null);
-  const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(true);
-
-  const requestLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            latitude: Number(position.coords.latitude.toFixed(8)),
-            longitude: Number(position.coords.longitude.toFixed(8)),
-          });
-          setIsModalOpen(false);
-        },
-        (err) => {
-          setError(err.message);
-          setIsModalOpen(false);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0,
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by this browser.");
-      setIsModalOpen(false);
-    }
-  };
+export default function RateServicePage() {
+  // Puedes obtener el requestId según tu lógica
+  const requestId = "b6b98275-83b7-444c-ad8d-24241fb6cd3f";
 
   return (
-    <div>
-      <h2>Datos de Geolocalización</h2>
-      {error && <p style={{ color: "red" }}>Error: {error}</p>}
-      {location ? (
-        <p>
-          Latitud: {location.latitude}, Longitud: {location.longitude}
-        </p>
-      ) : (
-        !error && <p>Obteniendo ubicación...</p>
-      )}
-
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow">
-            <h3 className="text-xl mb-4">Permitir Geolocalización</h3>
-            <p className="mb-4">
-              Para continuar, por favor permite el acceso a tu ubicación.
-            </p>
-            <button
-              onClick={requestLocation}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              Permitir
-            </button>
-          </div>
-        </div>
-      )}
+    <div className="max-w-2xl mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">Calificación del Servicio</h1>
+      <RateServiceSection requestId={requestId} onRateComplete={() => console.log("Calificación completada")} />
     </div>
   );
-};
-
-export default GeoLocationTest;
+}

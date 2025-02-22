@@ -8,7 +8,11 @@ import "nextjs-toast-notify/dist/nextjs-toast-notify.css";
 
 import AsyncInfiniteSelect from "@/components/forms/AsyncInfiniteSelect";
 import Logo from "../sign-in/Logo";
-import { createPatient, getEPSList, getPrepaidMedicineList } from "@/api/service_api";
+import {
+  createPatient,
+  getEPSList,
+  getPrepaidMedicineList,
+} from "@/api/service_api";
 import { SelectField } from "./SelectField";
 import { InputField } from "./InputField";
 
@@ -40,14 +44,17 @@ export default function RegisterForm() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
   };
 
-   // Función para cargar opciones de EPS con paginación
-   const loadEpsOptions = async (inputValue, loadedOptions, { page }) => {
+  // Función para cargar opciones de EPS con paginación
+  const loadEpsOptions = async (inputValue, loadedOptions, { page }) => {
     try {
       const data = await getEPSList(page);
-      const options = data.results.map((item) => ({ value: item.id, label: item.name }));
+      const options = data.results.map((item) => ({
+        value: item.id,
+        label: item.name,
+      }));
       return {
         options: options,
         hasMore: data.next !== null,
@@ -65,7 +72,10 @@ export default function RegisterForm() {
   const loadPrepaidOptions = async (inputValue, loadedOptions, { page }) => {
     try {
       const response = await getPrepaidMedicineList(page);
-      const options = response.results.map((item) => ({ value: item.id, label: item.name }));
+      const options = response.results.map((item) => ({
+        value: item.id,
+        label: item.name,
+      }));
       return {
         options: options,
         hasMore: response.next !== null,
@@ -93,8 +103,7 @@ export default function RegisterForm() {
       !formData.address_line ||
       !formData.password ||
       !formData.password2 ||
-      !epsValue ||
-      !prepaidValue
+      !epsValue
     ) {
       toast.error("Por favor, completa todos los campos requeridos.", {
         duration: 5000,
@@ -116,10 +125,13 @@ export default function RegisterForm() {
     const submissionData = {
       ...formData,
       eps: epsValue.value,
-      prepaid_medicine: prepaidValue.value,
       birthdate: formatDate(formData.birthdate),
     };
-
+    
+    if (prepaidValue) {
+      submissionData.prepaid_medicine = prepaidValue.value;
+    }
+    
     console.log("Datos del formulario:", submissionData);
 
     try {
@@ -270,10 +282,14 @@ export default function RegisterForm() {
 
         {/* Sección de Salud */}
         <fieldset className="border p-4 rounded-md">
-          <legend className="text-xl font-bold text-primary-100">Información de Salud</legend>
+          <legend className="text-xl font-bold text-primary-100">
+            Información de Salud
+          </legend>
           <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="sm:col-span-3">
-              <label className="block mb-2 text-gray-700 font-medium">EPS</label>
+              <label className="block mb-2 text-gray-700 font-medium">
+                EPS
+              </label>
               <AsyncInfiniteSelect
                 loadOptions={loadEpsOptions}
                 value={epsValue}
@@ -283,7 +299,9 @@ export default function RegisterForm() {
               />
             </div>
             <div className="sm:col-span-3">
-              <label className="block mb-2 text-gray-700 font-medium">Medicina Prepagada</label>
+              <label className="block mb-2 text-gray-700 font-medium">
+                Medicina Prepagada
+              </label>
               <AsyncInfiniteSelect
                 loadOptions={loadPrepaidOptions}
                 value={prepaidValue}
@@ -332,7 +350,10 @@ export default function RegisterForm() {
             onChange={handleChange}
             className="h-4 w-4 text-primary-100 border-gray-300 rounded"
           />
-          <label htmlFor="termsAccepted" className="ml-2 block text-lg text-gray-900">
+          <label
+            htmlFor="termsAccepted"
+            className="ml-2 block text-lg text-gray-900"
+          >
             Acepto los términos y condiciones
           </label>
         </div>
